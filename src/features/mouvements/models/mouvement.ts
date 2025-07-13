@@ -5,7 +5,6 @@ import type {TypeAjustement} from "./typeAjustement.ts";
 import type {TypeMouvement} from "./typeMouvement.ts";
 import type {Utilisateur} from "../../utilisateurs/models/utilisateur.ts";
 
-
 export interface Mouvement{
     id?: number;
     type: TypeMouvement;
