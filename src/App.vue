@@ -1,30 +1,56 @@
-<script setup lang="ts">
-import BoissonPage from "./pages/BoissonPage.vue";
-</script>
-
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div id="app" class="app-layout">
+    <SideBar :is-collapsed="sidebarCollapsed" />
+
+    <main class="app-main" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
+      <div class="main-content">
+        <router-view />
+      </div>
+    </main>
   </div>
-  <router-view></router-view>
 </template>
 
+<script setup lang="ts">
+import { ref } from 'vue'
+import SideBar from "./components/SideBar.vue";
+
+const sidebarCollapsed = ref(false)
+
+const toggleSidebar = () => {
+  sidebarCollapsed.value = !sidebarCollapsed.value
+}
+</script>
+
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+.app-layout {
+  min-height: 100vh;
+  background: var(--color-bg-secondary);
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+.app-main {
+  margin-left: var(--layout-sidebar-width);
+  margin-top: var(--layout-header-height);
+  transition: margin-left var(--transition-base);
+  min-height: calc(100vh - var(--layout-header-height));
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+.app-main.sidebar-collapsed {
+  margin-left: var(--layout-sidebar-collapsed-width);
+}
+
+.main-content {
+  padding: var(--layout-content-padding);
+  max-width: var(--layout-max-width);
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    margin-left: 0;
+  }
+
+  .app-main.sidebar-collapsed {
+    margin-left: 0;
+  }
 }
 </style>
