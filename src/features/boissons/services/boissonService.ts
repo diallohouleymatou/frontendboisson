@@ -12,11 +12,19 @@ export class BoissonService {
       return response.data;
     }
     static async updateBoisson(boisson:Boisson){
+        console.log(boisson)
         const response = await api.put<Boisson>(this.base_Url,boisson);
         return response.data;
     }
     static async getBoissonById(id:number){
         const response = await api.get<Boisson>(this.base_Url+'/'+id);
+        return response.data;
+    }
+    static async activateOrDeactivateBoisson(id: number, isActive: boolean) {
+        const response = await api.patch<Boisson>(
+            `${this.base_Url}/${id}/activation`,
+            { active: isActive }
+        );
         return response.data;
     }
 }
