@@ -10,7 +10,6 @@ export interface Mouvement{
     type: TypeMouvement;
     dateMouvement: string; // ou Date
     quantite: number;
-
     boissonId: number;
     boisson?: Boisson;
     boissonNom?: string;
