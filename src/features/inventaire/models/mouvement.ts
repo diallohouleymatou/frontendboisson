@@ -1,3 +1,6 @@
+import type {Utilisateur} from "../../utilisateurs/models/utilisateur.ts";
+import type {LigneOperation} from "./ligneOperation.ts";
+
 export interface Mouvement {
   id?: number;
   type: string; // TypeMouvement
