@@ -1,3 +1,8 @@
+
+import type {Boisson} from "../../boissons/models/boisson.ts";
+import type {Mouvement} from "./mouvement.ts";
+
+
 export interface Lot {
   id?: number;
   numeroLot: string;
