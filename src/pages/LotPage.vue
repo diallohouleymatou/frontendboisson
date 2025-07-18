@@ -9,6 +9,7 @@ import {
 } from '@heroicons/vue/24/outline'
 import type { Lot } from "../features/lots/models/lot.ts";
 import { LotService } from "../features/lots/services/lotService.ts";
+import { inventaireService } from "../features/inventaire/services/inventaireService";
 import Modal from '../components/Modal.vue'
 import LotForm from '../components/forms/LotForm.vue'
 
@@ -18,27 +19,27 @@ const boissons = ref([
   { id: 2, nom: 'Fanta' }
 ])
 
-// Mock data for lots (will be replaced with API call)
-const lots = ref<Lot[]>([
-  {
-    id: 1,
-    numeroLot: 'LOT001',
-    boisson: { id: 1, nom: 'Coca-Cola' },
-    quantiteInitiale: 100,
-    quantiteActuelle: 75,
-    dateEntree: new Date('2025-07-01'),
-    datePeremption: new Date('2025-12-31')
-  },
-  {
-    id: 2,
-    numeroLot: 'LOT002',
-    boisson: { id: 2, nom: 'Fanta' },
-    quantiteInitiale: 150,
-    quantiteActuelle: 150,
-    dateEntree: new Date('2025-07-13'),
-    datePeremption: new Date('2025-08-13')
-  }
-])
+// const lots = ref<Lot[]>([
+//   {
+//     id: 1,
+//     numeroLot: 'LOT001',
+//     boisson: { id: 1, nom: 'Coca-Cola' },
+//     quantiteInitiale: 100,
+//     quantiteActuelle: 75,
+//     dateEntree: new Date('2025-07-01'),
+//     datePeremption: new Date('2025-12-31')
+//   },
+//   {
+//     id: 2,
+//     numeroLot: 'LOT002',
+//     boisson: { id: 2, nom: 'Fanta' },
+//     quantiteInitiale: 150,
+//     quantiteActuelle: 150,
+//     dateEntree: new Date('2025-07-13'),
+//     datePeremption: new Date('2025-08-13')
+//   }
+// ])
+const lots = ref<Lot[]>([])
 
 const showModal = ref(false)
 const modalTitle = ref('')
@@ -64,7 +65,7 @@ const editLot = (lot: Lot) => {
 // Chargement des données
 onMounted(async () => {
   try {
-    lots.value = await LotService.getAllLots();
+    lots.value = await inventaireService.getAllLots();
   } catch (error) {
     console.error('Erreur lors du chargement des lots:', error);
   } finally {

@@ -11,9 +11,9 @@ export class BoissonService {
       const response = await api.post<Boisson>(this.base_Url,boisson);
       return response.data;
     }
-    static async updateBoisson(boisson:Boisson){
+    static async updateBoisson(boisson:Boisson,id:number){
         console.log(boisson)
-        const response = await api.put<Boisson>(this.base_Url,boisson);
+        const response = await api.put<Boisson>(this.base_Url+'/'+id,boisson);
         return response.data;
     }
     static async getBoissonById(id:number){

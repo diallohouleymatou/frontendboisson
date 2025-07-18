@@ -113,7 +113,7 @@ const handleSort = (column: string) => {
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('fr-FR', {
     style: 'currency',
-    currency: 'EUR'
+    currency: 'XOF'
   }).format(price);
 };
 
@@ -152,7 +152,7 @@ const handleSubmit = async (boissonData: Boisson) => {
     // Update existing boisson
     try {
       console.log('Updating boisson:', boissonData);
-      await BoissonService.updateBoisson(boissonData);
+      await BoissonService.updateBoisson(boissonData, selectedBoisson.value.id!);
       const index = boissons.value.findIndex(b => b.id === selectedBoisson.value?.id);
       if (index !== -1) {
         boissons.value[index] = { ...boissonData, id: selectedBoisson.value.id };

@@ -3,11 +3,11 @@
     <h2 class="form-title">{{ utilisateur ? 'Modifier l\'utilisateur' : 'Ajouter un utilisateur' }}</h2>
     <div class="form-group">
       <label for="nom">Nom</label>
-      <input type="text" id="nom" v-model="formData.nom" required placeholder="Entrez le nom" class="form-input">
+      <input type="text" id="nom" v-model="formData.email" required placeholder="Entrez le nom" class="form-input">
     </div>
     <div class="form-group">
       <label for="prenom">Prénom</label>
-      <input type="text" id="prenom" v-model="formData.prenom" required placeholder="Entrez le prénom" class="form-input">
+      <input type="text" id="prenom" v-model="formData.email" required placeholder="Entrez le prénom" class="form-input">
     </div>
     <div class="form-group">
       <label for="email">Email</label>

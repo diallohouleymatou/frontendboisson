@@ -42,6 +42,12 @@
                 <span class="nav-text">Mouvements</span>
               </router-link>
             </li>
+            <li class="nav-item">
+              <router-link to="/operation" class="nav-link" active-class="active">
+                <ClipboardDocumentListIcon class="nav-icon w-5 h-5" />
+                <span class="nav-text">Opérations</span>
+              </router-link>
+            </li>
           </ul>
         </div>
 
@@ -96,6 +102,7 @@ import {
   UserGroupIcon,
   PresentationChartLineIcon,
   TagIcon,
+  ClipboardDocumentListIcon,
 } from '@heroicons/vue/24/outline'
 
 interface Props {
