@@ -197,8 +197,8 @@ import { PlusIcon, TrashIcon, ArchiveBoxIcon } from '@heroicons/vue/24/outline'
 import type { Lot } from '../../features/inventaire/models/lot'
 import type { Boisson } from '../../features/boissons/models/boisson'
 import type { Utilisateur } from '../../features/utilisateurs/models/utilisateur'
-import { boissonService } from '../../features/boissons/services/boissonService'
-import { utilisateurService } from '../../features/utilisateurs/services/utilisateurService'
+import { BoissonService } from '../../features/boissons/services/boissonService'
+import { UtilisateurService } from '../../features/utilisateurs/services/utilisateurService'
 
 const props = defineProps<{
   isLoading?: boolean
@@ -223,8 +223,8 @@ const utilisateurs = ref<Utilisateur[]>([])
 onMounted(async () => {
   try {
     const [boissonsList, utilisateursList] = await Promise.all([
-      boissonService.getAllBoissons(),
-      utilisateurService.getAllUtilisateurs(),
+      BoissonService.getAllBoissons(),
+      UtilisateurService.getAllUtilisateurs(),
     ])
     boissons.value = boissonsList
     utilisateurs.value = utilisateursList
