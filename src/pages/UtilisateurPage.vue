@@ -134,22 +134,6 @@ import type { Role } from '../features/utilisateurs/models/role'
 
 // Mock data for development
 const utilisateurs = ref<Utilisateur[]>([
-  {
-    id: 1,
-    email: 'gerant@example.com',
-    role: 'GERANT' as Role,
-    motDePasse: 'password123',
-    isActive: true,
-    createdAt: '2023-01-01T00:00:00.000Z'
-  },
-  {
-    id: 2,
-    email: 'employe@example.com',
-    role: 'EMPLOYE' as Role,
-    motDePasse: 'password123',
-    isActive: true,
-    createdAt: '2023-01-02T00:00:00.000Z'
-  }
 ])
 
 const columns = [
