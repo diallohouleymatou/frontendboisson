@@ -70,19 +70,15 @@ export class UtilisateurService {
     }
   }
 
-  static async changePassword(passwordRequest: PasswordRequest): Promise<void> {
+  static async changePassword(id: number, passwordRequest: PasswordRequest): Promise<void> {
     try {
-      const userId = this.getCurrentUser()?.id
-      if (!userId) {
+      if (!id) {
         throw new Error('Utilisateur non connecté')
       }
-
       if (!passwordRequest.ancienMotDePasse || !passwordRequest.nouveauMotDePasse) {
         throw new Error('L\'ancien et le nouveau mot de passe sont requis')
       }
-
-      await api.patch(`/utilisateurs/change-password?id=${userId}`, passwordRequest)
-
+      await api.patch(`/utilisateurs/change-password?id=${id}`, passwordRequest)
       // Mise à jour du statut firstLogin
       const user = this.getCurrentUser()
       if (user && user.isFirstLogin) {
