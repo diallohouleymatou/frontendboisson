@@ -19,7 +19,7 @@
             >
               <option value="">Toutes les boissons</option>
               <option v-for="boisson in boissons" :key="boisson.id" :value="boisson">
-                {{ boisson.nom }} - {{ boisson.format }} {{ boisson.volume }}
+                {{ boisson.nom }} - {{ boisson.volume }}{{ boisson.unite }}
               </option>
             </select>
           </div>
@@ -199,7 +199,7 @@
             >
               <option value="">Sélectionnez un utilisateur</option>
               <option v-for="utilisateur in utilisateurs" :key="utilisateur.id" :value="utilisateur">
-                {{ utilisateur.nom }} ({{ utilisateur.email }})
+                {{ utilisateur.email }}
               </option>
             </select>
             <span v-if="errors.utilisateur" class="error-message">{{ errors.utilisateur }}</span>
@@ -269,16 +269,17 @@ import { ArrowRightIcon } from '@heroicons/vue/24/outline'
 import type { Lot } from '../../features/inventaire/models/lot'
 import type { Boisson } from '../../features/boissons/models/boisson'
 import type { Utilisateur } from '../../features/utilisateurs/models/utilisateur'
+import type { CreateMouvementAjustementRequest } from '../../features/inventaire/models/createMouvementAjustementRequest'
 import { inventaireService } from '../../features/inventaire/services/inventaireService'
-import { boissonService } from '../../features/boissons/services/boissonService'
-import { utilisateurService } from '../../features/utilisateurs/services/utilisateurService'
+import { BoissonService } from '../../features/boissons/services/boissonService'
+import { UtilisateurService } from '../../features/utilisateurs/services/utilisateurService'
 
 const props = defineProps<{
   isLoading?: boolean
 }>()
 
 const emit = defineEmits<{
-  submit: [data: any]
+  submit: [data: CreateMouvementAjustementRequest]
   cancel: []
 }>()
 
@@ -308,8 +309,8 @@ onMounted(async () => {
   try {
     const [lotsList, boissonsList, utilisateursList] = await Promise.all([
       inventaireService.getAllLots(),
-      boissonService.getAllBoissons(),
-      utilisateurService.getAllUtilisateurs(),
+      BoissonService.getAllBoissons(),
+      UtilisateurService.getAllUtilisateurs(),
     ])
 
     lots.value = lotsList
@@ -509,17 +510,14 @@ const handleSubmit = () => {
     return
   }
 
-  emit('submit', {
-    lotId: formData.value.lot!.id,
-    typeAjustement: formData.value.typeAjustement,
-    quantiteAvant: formData.value.lot!.quantiteActuelle,
-    quantiteApres: calculatedNewQuantity.value,
-    difference: difference.value,
+  const request: CreateMouvementAjustementRequest = {
+    lotId: formData.value.lot!.id!,
+    delta: difference.value,
     raison: formData.value.raison,
-    utilisateur: formData.value.utilisateur,
-    dateMouvement: new Date().toISOString(),
-    type: 'AJUSTEMENT'
-  })
+    utilisateur: formData.value.utilisateur!
+  }
+
+  emit('submit', request)
 }
 </script>
 
