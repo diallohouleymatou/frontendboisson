@@ -86,6 +86,7 @@
           <TagIcon class="w-4 h-4 version-icon" />
           <span class="version-text">v1.0.5</span>
         </div>
+        <button class="logout-btn" @click="handleLogout">Déconnexion</button>
       </div>
     </div>
   </aside>
@@ -93,6 +94,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { UtilisateurService } from '../features/utilisateurs/services/utilisateurService'
 import {
   HomeIcon,
   ChartBarSquareIcon,
@@ -111,9 +114,13 @@ interface Props {
 
 defineProps<Props>()
 
+const router = useRouter()
+const handleLogout = async () => {
+  await UtilisateurService.logout()
+  router.push('/login')
+}
 
 const user = { role: 'GERANT' }
-
 const isGerant = computed(() => user.role === 'GERANT')
 </script>
 
@@ -320,6 +327,24 @@ const isGerant = computed(() => user.role === 'GERANT')
   background: var(--color-bg-primary);
   color: var(--color-text-secondary);
   transform: translateY(-1px);
+}
+
+.logout-btn {
+  margin-top: 1.5rem;
+  width: 100%;
+  background: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.6rem 0;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.logout-btn:hover {
+  background: #388e3c;
 }
 
 /* Mobile Responsive */
