@@ -6,63 +6,48 @@
     </div>
 
     <div class="form-sections">
-      <!-- Section Sélection du lot -->
+      <!-- Section Sélection de la boisson -->
       <div class="form-section">
-        <h4 class="section-title">Sélection du Lot</h4>
+        <h4 class="section-title">Sélection de la Boisson</h4>
         <div class="form-row">
           <div class="form-group">
-            <label for="boisson">Filtrer par boisson</label>
+            <label for="boissonId">Boisson à sortir*</label>
             <select
-              id="boisson"
-              v-model="selectedBoisson"
-              @change="filterLots"
-            >
-              <option value="">Toutes les boissons</option>
-              <option v-for="boisson in boissons" :key="boisson.id" :value="boisson">
-                {{ boisson.nom }} - {{ boisson.format }} {{ boisson.volume }}
-              </option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="lot">Lot à utiliser*</label>
-            <select
-              id="lot"
-              v-model="formData.lot"
+              id="boissonId"
+              v-model="formData.boissonId"
               required
-              :class="{ 'error': errors.lot }"
-              @change="onLotChange"
+              :class="{ 'error': errors.boissonId }"
+              @change="onBoissonChange"
             >
-              <option value="">Sélectionnez un lot</option>
-              <option v-for="lot in filteredLots" :key="lot.id" :value="lot">
-                {{ lot.numeroLot }} - {{ lot.boisson?.nom }} ({{ lot.quantiteActuelle }} restant)
+              <option value="">Sélectionnez une boisson</option>
+              <option v-for="boisson in boissons" :key="boisson.id" :value="boisson.id">
+                {{ boisson.nom }} - {{ boisson.volume }}{{ boisson.unite }}
               </option>
             </select>
-            <span v-if="errors.lot" class="error-message">{{ errors.lot }}</span>
+            <span v-if="errors.boissonId" class="error-message">{{ errors.boissonId }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Détails du lot sélectionné -->
-      <div v-if="formData.lot" class="form-section lot-details">
-        <h4 class="section-title">Détails du Lot Sélectionné</h4>
-        <div class="lot-info-grid">
+      <!-- Détails de la boisson sélectionnée -->
+      <div v-if="selectedBoissonDetails" class="form-section boisson-details">
+        <h4 class="section-title">Détails de la Boisson Sélectionnée</h4>
+        <div class="boisson-info-grid">
           <div class="info-item">
-            <span class="info-label">Numéro de lot :</span>
-            <span class="info-value">{{ formData.lot.numeroLot }}</span>
+            <span class="info-label">Nom :</span>
+            <span class="info-value">{{ selectedBoissonDetails.nom }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">Boisson :</span>
-            <span class="info-value">{{ formData.lot.boisson?.nom }}</span>
+            <span class="info-label">Volume :</span>
+            <span class="info-value">{{ selectedBoissonDetails.volume }}{{ selectedBoissonDetails.unite }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">Stock disponible :</span>
-            <span class="info-value stock-available">{{ formData.lot.quantiteActuelle }} unités</span>
+            <span class="info-label">Description :</span>
+            <span class="info-value">{{ selectedBoissonDetails.description || 'Non spécifiée' }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">Date de péremption :</span>
-            <span class="info-value" :class="getExpirationClass(formData.lot.datePeremption)">
-              {{ formatDate(formData.lot.datePeremption) }}
-            </span>
+            <span class="info-label">Type :</span>
+            <span class="info-value">{{ selectedBoissonDetails.type || 'Non spécifié' }}</span>
           </div>
         </div>
       </div>
@@ -72,24 +57,17 @@
         <h4 class="section-title">Détails de la Sortie</h4>
         <div class="form-row">
           <div class="form-group">
-            <label for="quantite">Quantité à sortir*</label>
+            <label for="quantiteDemandee">Quantité demandée*</label>
             <input
-              id="quantite"
-              v-model.number="formData.quantite"
+              id="quantiteDemandee"
+              v-model.number="formData.quantiteDemandee"
               type="number"
               min="1"
-              :max="formData.lot?.quantiteActuelle || 999999"
               required
-              :class="{ 'error': errors.quantite }"
-              placeholder="Nombre d'unités"
-              @input="calculateRemaining"
+              :class="{ 'error': errors.quantiteDemandee }"
+              placeholder="Nombre d'unités à sortir"
             />
-            <div class="quantity-helper">
-              <span v-if="formData.lot" class="helper-text">
-                Maximum disponible : {{ formData.lot.quantiteActuelle }} unités
-              </span>
-            </div>
-            <span v-if="errors.quantite" class="error-message">{{ errors.quantite }}</span>
+            <span v-if="errors.quantiteDemandee" class="error-message">{{ errors.quantiteDemandee }}</span>
           </div>
           <div class="form-group">
             <label for="raison">Raison de la sortie*</label>
@@ -141,7 +119,7 @@
             >
               <option value="">Sélectionnez un utilisateur</option>
               <option v-for="utilisateur in utilisateurs" :key="utilisateur.id" :value="utilisateur">
-                {{ utilisateur.nom }} ({{ utilisateur.email }})
+                {{ utilisateur.email }}
               </option>
             </select>
             <span v-if="errors.utilisateur" class="error-message">{{ errors.utilisateur }}</span>
@@ -150,30 +128,25 @@
       </div>
     </div>
 
-    <!-- Aperçu de l'impact -->
-    <div v-if="formData.lot && formData.quantite" class="impact-preview">
-      <h4 class="preview-title">Aperçu de l'Impact</h4>
-      <div class="impact-grid">
-        <div class="impact-item">
-          <span class="impact-label">Stock actuel :</span>
-          <span class="impact-value">{{ formData.lot.quantiteActuelle }} unités</span>
+    <!-- Résumé de la demande -->
+    <div v-if="formData.boissonId && formData.quantiteDemandee > 0" class="request-summary">
+      <h4 class="summary-title">Résumé de la Demande de Sortie</h4>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-label">Boisson :</span>
+          <span class="summary-value">{{ selectedBoissonDetails?.nom }}</span>
         </div>
-        <div class="impact-item">
-          <span class="impact-label">Quantité sortie :</span>
-          <span class="impact-value negative">-{{ formData.quantite }} unités</span>
+        <div class="summary-item">
+          <span class="summary-label">Quantité demandée :</span>
+          <span class="summary-value negative">{{ formData.quantiteDemandee }} unités</span>
         </div>
-        <div class="impact-item">
-          <span class="impact-label">Stock restant :</span>
-          <span class="impact-value" :class="getStockClass(remainingStock)">
-            {{ remainingStock }} unités
-          </span>
+        <div class="summary-item">
+          <span class="summary-label">Raison :</span>
+          <span class="summary-value">{{ getRaisonText() }}</span>
         </div>
-        <div class="impact-item">
-          <span class="impact-label">Statut :</span>
-          <span class="impact-status" :class="getStatusClass(remainingStock)">
-            {{ getStatusText(remainingStock) }}
-          </span>
-        </div>
+      </div>
+      <div class="summary-note">
+        <p><strong>Note :</strong> Le système sélectionnera automatiquement les lots disponibles pour cette boisson selon la stratégie FIFO (Premier Entré, Premier Sorti).</p>
       </div>
     </div>
 
@@ -184,7 +157,7 @@
       </button>
       <button type="submit" class="btn btn-danger" :disabled="isLoading || !isFormValid">
         <span v-if="isLoading" class="loading-spinner"></span>
-        {{ isLoading ? 'Sortie en cours...' : 'Confirmer la sortie' }}
+        {{ isLoading ? 'Traitement en cours...' : 'Confirmer la sortie' }}
       </button>
     </div>
   </form>
@@ -192,70 +165,62 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import type { Lot } from '../../features/inventaire/models/lot'
 import type { Boisson } from '../../features/boissons/models/boisson'
 import type { Utilisateur } from '../../features/utilisateurs/models/utilisateur'
-import { inventaireService } from '../../features/inventaire/services/inventaireService'
-import { boissonService } from '../../features/boissons/services/boissonService'
-import { utilisateurService } from '../../features/utilisateurs/services/utilisateurService'
+import type { CreateMouvementSortieRequest } from '../../features/inventaire/models/createMouvementSortieRequest'
+import { BoissonService } from '../../features/boissons/services/boissonService'
+import { UtilisateurService } from '../../features/utilisateurs/services/utilisateurService'
 
 const props = defineProps<{
   isLoading?: boolean
 }>()
 
 const emit = defineEmits<{
-  submit: [data: any]
+  submit: [data: CreateMouvementSortieRequest]
   cancel: []
 }>()
 
 // État du formulaire
 const formData = ref({
-  lot: undefined as Lot | undefined,
-  quantite: 0,
+  boissonId: undefined as number | undefined,
+  quantiteDemandee: 0,
   raison: '',
   raisonAutre: '',
   utilisateur: undefined as Utilisateur | undefined,
 })
 
 const errors = ref<Record<string, string>>({})
-const selectedBoisson = ref<Boisson>()
+const selectedBoisson = ref<number | undefined>(undefined)
 
 // Données de référence
-const lots = ref<Lot[]>([])
 const boissons = ref<Boisson[]>([])
 const utilisateurs = ref<Utilisateur[]>([])
-const filteredLots = ref<Lot[]>([])
 
 // Chargement des données
 onMounted(async () => {
   try {
-    const [lotsList, boissonsList, utilisateursList] = await Promise.all([
-      inventaireService.getAllLots(),
-      boissonService.getAllBoissons(),
-      utilisateurService.getAllUtilisateurs(),
+    const [boissonsList, utilisateursList] = await Promise.all([
+      BoissonService.getAllBoissons(),
+      UtilisateurService.getAllUtilisateurs(),
     ])
 
-    // Filtrer uniquement les lots avec du stock disponible
-    lots.value = lotsList.filter(lot => lot.quantiteActuelle > 0)
     boissons.value = boissonsList
     utilisateurs.value = utilisateursList
-    filteredLots.value = lots.value
   } catch (error) {
     console.error('Erreur lors du chargement des données:', error)
   }
 })
 
-// Calculs
-const remainingStock = computed(() => {
-  if (!formData.value.lot || !formData.value.quantite) return 0
-  return formData.value.lot.quantiteActuelle - formData.value.quantite
+// Computed pour obtenir les détails de la boisson sélectionnée
+const selectedBoissonDetails = computed(() => {
+  if (!formData.value.boissonId) return null
+  return boissons.value.find(b => b.id === formData.value.boissonId)
 })
 
 // Validation
 const isFormValid = computed(() => {
-  return formData.value.lot &&
-         formData.value.quantite > 0 &&
-         formData.value.quantite <= formData.value.lot.quantiteActuelle &&
+  return formData.value.boissonId &&
+         formData.value.quantiteDemandee > 0 &&
          formData.value.raison &&
          (formData.value.raison !== 'AUTRE' || formData.value.raisonAutre) &&
          formData.value.utilisateur &&
@@ -263,81 +228,30 @@ const isFormValid = computed(() => {
 })
 
 // Fonctions utilitaires
-const filterLots = () => {
-  if (!selectedBoisson.value) {
-    filteredLots.value = lots.value
-  } else {
-    filteredLots.value = lots.value.filter(lot =>
-      lot.boisson?.id === selectedBoisson.value?.id
-    )
-  }
-
-  // Réinitialiser la sélection si le lot n'est plus dans la liste filtrée
-  if (formData.value.lot && !filteredLots.value.find(lot => lot.id === formData.value.lot?.id)) {
-    formData.value.lot = undefined
-    formData.value.quantite = 0
-  }
-}
-
-const onLotChange = () => {
-  formData.value.quantite = 0
+const onBoissonChange = () => {
+  // Réinitialiser les données de la boisson sélectionnée
+  selectedBoisson.value = formData.value.boissonId
   errors.value = {}
 }
 
-const calculateRemaining = () => {
-  // Validation en temps réel de la quantité
-  if (formData.value.lot && formData.value.quantite > formData.value.lot.quantiteActuelle) {
-    errors.value.quantite = `Maximum disponible : ${formData.value.lot.quantiteActuelle}`
-  } else {
-    delete errors.value.quantite
+const getRaisonText = () => {
+  const raison = formData.value.raison
+  if (raison === 'AUTRE') {
+    return formData.value.raisonAutre || 'Précisé par l\'utilisateur'
   }
-}
-
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('fr-FR')
-}
-
-const getExpirationClass = (dateString: string) => {
-  const expirationDate = new Date(dateString)
-  const now = new Date()
-  const daysUntilExpiration = Math.ceil((expirationDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-
-  if (daysUntilExpiration < 0) return 'expired'
-  if (daysUntilExpiration <= 7) return 'warning'
-  if (daysUntilExpiration <= 30) return 'caution'
-  return 'normal'
-}
-
-const getStockClass = (stock: number) => {
-  if (stock === 0) return 'empty'
-  if (stock < 10) return 'low'
-  return 'normal'
-}
-
-const getStatusClass = (stock: number) => {
-  if (stock === 0) return 'status-empty'
-  if (stock < 10) return 'status-low'
-  return 'status-normal'
-}
-
-const getStatusText = (stock: number) => {
-  if (stock === 0) return 'Stock épuisé'
-  if (stock < 10) return 'Stock faible'
-  return 'Stock normal'
+  return raison
 }
 
 // Validation et soumission
 const validateForm = () => {
   errors.value = {}
 
-  if (!formData.value.lot) {
-    errors.value.lot = 'Veuillez sélectionner un lot'
+  if (!formData.value.boissonId) {
+    errors.value.boissonId = 'Veuillez sélectionner une boisson'
   }
 
-  if (!formData.value.quantite || formData.value.quantite <= 0) {
-    errors.value.quantite = 'La quantité doit être supérieure à 0'
-  } else if (formData.value.lot && formData.value.quantite > formData.value.lot.quantiteActuelle) {
-    errors.value.quantite = `Quantité maximale : ${formData.value.lot.quantiteActuelle}`
+  if (!formData.value.quantiteDemandee || formData.value.quantiteDemandee <= 0) {
+    errors.value.quantiteDemandee = 'La quantité doit être supérieure à 0'
   }
 
   if (!formData.value.raison) {
@@ -360,18 +274,13 @@ const handleSubmit = () => {
     return
   }
 
-  const raisonFinal = formData.value.raison === 'AUTRE'
-    ? formData.value.raisonAutre
-    : formData.value.raison
+  const request: CreateMouvementSortieRequest = {
+    boissonId: formData.value.boissonId!,
+    quantiteDemandee: formData.value.quantiteDemandee,
+    utilisateur: formData.value.utilisateur!
+  }
 
-  emit('submit', {
-    lotId: formData.value.lot!.id,
-    quantite: formData.value.quantite,
-    raison: raisonFinal,
-    utilisateur: formData.value.utilisateur,
-    dateMouvement: new Date().toISOString(),
-    type: 'SORTIE'
-  })
+  emit('submit', request)
 }
 </script>
 
@@ -413,7 +322,7 @@ const handleSubmit = () => {
   border: 1px solid #e5e7eb;
 }
 
-.lot-details {
+.boisson-details {
   background: #fffbeb;
   border-color: #f59e0b;
 }
@@ -473,23 +382,14 @@ const handleSubmit = () => {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
-.quantity-helper {
-  margin-top: 0.25rem;
-}
-
-.helper-text {
-  font-size: 0.75rem;
-  color: #6b7280;
-}
-
 .error-message {
   color: #ef4444;
   font-size: 0.75rem;
   margin-top: 0.25rem;
 }
 
-/* Détails du lot */
-.lot-info-grid {
+/* Détails de la boisson */
+.boisson-info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
@@ -514,28 +414,8 @@ const handleSubmit = () => {
   color: #1f2937;
 }
 
-.stock-available {
-  color: #059669;
-}
-
-.expired {
-  color: #dc2626;
-}
-
-.warning {
-  color: #ea580c;
-}
-
-.caution {
-  color: #d97706;
-}
-
-.normal {
-  color: #059669;
-}
-
-/* Aperçu de l'impact */
-.impact-preview {
+/* Résumé de la demande */
+.request-summary {
   background: #fef2f2;
   border: 1px solid #fca5a5;
   border-radius: 0.5rem;
@@ -543,20 +423,20 @@ const handleSubmit = () => {
   margin-top: 1rem;
 }
 
-.preview-title {
+.summary-title {
   font-size: 1.125rem;
   font-weight: 600;
   color: #991b1b;
   margin-bottom: 1rem;
 }
 
-.impact-grid {
+.summary-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
-.impact-item {
+.summary-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -565,48 +445,18 @@ const handleSubmit = () => {
   border-radius: 0.375rem;
 }
 
-.impact-label {
+.summary-label {
   font-weight: 500;
   color: #374151;
 }
 
-.impact-value {
+.summary-value {
   font-weight: 600;
   color: #1f2937;
 }
 
-.impact-value.negative {
+.summary-value.negative {
   color: #dc2626;
-}
-
-.impact-value.empty {
-  color: #dc2626;
-}
-
-.impact-value.low {
-  color: #ea580c;
-}
-
-.impact-status {
-  padding: 0.25rem 0.75rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.status-empty {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.status-low {
-  background: #fed7aa;
-  color: #9a3412;
-}
-
-.status-normal {
-  background: #dcfce7;
-  color: #166534;
 }
 
 /* Actions */
@@ -676,13 +526,20 @@ const handleSubmit = () => {
     grid-template-columns: 1fr;
   }
 
-  .lot-info-grid,
-  .impact-grid {
+  .boisson-info-grid {
     grid-template-columns: 1fr;
   }
 
   .form-actions {
     flex-direction: column;
   }
+}
+
+.summary-note {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f0f9ff;
+  border-radius: 0.375rem;
+  border-left: 4px solid #3b82f6;
 }
 </style>
