@@ -44,29 +44,6 @@
       <span class="error-message" v-if="errors.email">{{ errors.email }}</span>
     </div>
 
-    <div class="form-group" v-if="!utilisateur">
-      <label for="motDePasse">Mot de passe</label>
-      <div class="input-group">
-        <input
-          :type="showPassword ? 'text' : 'password'"
-          id="motDePasse"
-          v-model="formData.motDePasse"
-          required
-          placeholder="Entrez le mot de passe"
-          class="form-input"
-          :class="{ 'error': errors.motDePasse }"
-        >
-        <button
-          type="button"
-          class="toggle-password"
-          @click="showPassword = !showPassword"
-        >
-          {{ showPassword ? '🔒' : '👁️' }}
-        </button>
-      </div>
-      <span class="error-message" v-if="errors.motDePasse">{{ errors.motDePasse }}</span>
-    </div>
-
     <div class="form-group">
       <label for="role">Rôle</label>
       <select
@@ -117,20 +94,17 @@ const formData = ref<Partial<Utilisateur>>({
   firstName: '',
   lastName: '',
   email: '',
-  motDePasse: '',
   role: '',
   isActive: true,
   ...props.utilisateur
 });
 
-const showPassword = ref(false);
 const loading = ref(false);
 const error = ref('');
 const errors = ref({
   firstName: '',
   lastName: '',
   email: '',
-  motDePasse: '',
   role: ''
 });
 
@@ -139,7 +113,6 @@ watch(() => props.utilisateur, (newVal) => {
     firstName: '',
     lastName: '',
     email: '',
-    motDePasse: '',
     role: '',
     isActive: true,
     ...newVal
@@ -157,7 +130,6 @@ const validateForm = (): boolean => {
     firstName: '',
     lastName: '',
     email: '',
-    motDePasse: '',
     role: ''
   };
 
@@ -178,14 +150,6 @@ const validateForm = (): boolean => {
     isValid = false;
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.value.email)) {
     errors.value.email = 'L\'email n\'est pas valide';
-    isValid = false;
-  }
-
-  if (!props.utilisateur && !formData.value.motDePasse?.trim()) {
-    errors.value.motDePasse = 'Le mot de passe est requis';
-    isValid = false;
-  } else if (!props.utilisateur && formData.value.motDePasse!.length < 6) {
-    errors.value.motDePasse = 'Le mot de passe doit contenir au moins 6 caractères';
     isValid = false;
   }
 
