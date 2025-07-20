@@ -1,4 +1,6 @@
-export interface LoginResponse{
-    email:String,
-    token:String
+import type { Utilisateur } from "../models/utilisateur";
+
+export interface LoginResponse {
+    utilisateur: Utilisateur;
+    token: string;
 }
