@@ -1,13 +1,34 @@
 <script setup lang="ts">
 import { ChartBarIcon, CubeIcon, InboxArrowDownIcon, UserGroupIcon } from '@heroicons/vue/24/outline'
+import {computed, onMounted, ref} from 'vue'
+import { StatService } from '../features/stats/services/statService'
+import type { DashboardStatisticsDto } from '../features/stats/models/stat'
 
-// Données d'exemple pour les statistiques
-const stats = [
-  { label: 'Total Boissons', value: 124, icon: CubeIcon, color: 'primary' },
-  { label: 'Lots en Stock', value: 45, icon: InboxArrowDownIcon, color: 'accent' },
-  { label: 'Utilisateurs', value: 12, icon: UserGroupIcon, color: 'success' },
-  { label: 'Mouvements du Jour', value: 8, icon: ChartBarIcon, color: 'info' }
-]
+// État pour les statistiques du tableau de bord
+const dashboardStats = ref<DashboardStatisticsDto | null>(null)
+const loadingStats = ref(true)
+const statsError = ref('')
+
+// Récupération des statistiques au montage du composant
+onMounted(async () => {
+  try {
+    dashboardStats.value = await StatService.getDashboardStats()
+  } catch (e) {
+    statsError.value = 'Erreur lors du chargement des statistiques.'
+  } finally {
+    loadingStats.value = false
+  }
+})
+
+// Calcul des statistiques à afficher
+const stats = computed(() => dashboardStats.value ? [
+  { label: 'Total Boissons', value: dashboardStats.value.totalBeverages, icon: CubeIcon, color: 'primary' },
+  { label: 'Lots en Stock', value: dashboardStats.value.totalStock, icon: InboxArrowDownIcon, color: 'accent' },
+  { label: 'Utilisateurs', value: dashboardStats.value.totalUsers, icon: UserGroupIcon, color: 'success' },
+  { label: 'Mouvements', value: dashboardStats.value.totalMovements, icon: ChartBarIcon, color: 'info' },
+  { label: 'Valeur Totale', value: dashboardStats.value.totalValue, icon: ChartBarIcon, color: 'warning' },
+  { label: 'Alertes Stock Faible', value: dashboardStats.value.lowStockAlerts, icon: InboxArrowDownIcon, color: 'danger' },
+] : [])
 
 // Mouvements récents
 const recentMovements = [
@@ -41,24 +62,49 @@ const formatDate = (dateString: string) => {
 
     <!-- Statistiques avec animations -->
     <div class="stats-grid">
-      <div
+      <div v-if="loadingStats">Chargement des statistiques...</div>
+      <div v-else-if="statsError">{{ statsError }}</div>
+      <template v-else>
+        <div
           v-for="(stat, index) in stats"
           :key="stat.label"
           class="stat-card"
           :class="`stat-card--${stat.color}`"
           :style="{ '--delay': `${index * 0.1}s` }"
-      >
-        <div class="stat-icon-wrapper">
-          <component :is="stat.icon" class="stat-icon" />
+        >
+          <div class="stat-icon-wrapper">
+            <component :is="stat.icon" class="stat-icon" />
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ stat.value }}</div>
+            <div class="stat-label">{{ stat.label }}</div>
+          </div>
+          <div class="stat-trend">
+            <span class="trend-indicator">↗</span>
+          </div>
         </div>
-        <div class="stat-content">
-          <div class="stat-number">{{ stat.value }}</div>
-          <div class="stat-label">{{ stat.label }}</div>
-        </div>
-        <div class="stat-trend">
-          <span class="trend-indicator">↗</span>
-        </div>
-      </div>
+      </template>
+    </div>
+
+    <!-- Alertes de stock -->
+    <div v-if="dashboardStats?.stockAlerts && dashboardStats.stockAlerts.length" class="stock-alerts-section">
+      <h2 class="section-title">Alertes de Stock Faible</h2>
+      <table class="modern-table stock-alerts-table">
+        <thead>
+          <tr>
+            <th>Boisson</th>
+            <th>Quantité</th>
+            <th>Seuil</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="alert in dashboardStats.stockAlerts" :key="alert.lotId">
+            <td>{{ alert.boisson }}</td>
+            <td class="quantity-cell warning">{{ alert.quantite }}</td>
+            <td>{{ alert.seuil }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- Mouvements récents avec design moderne -->
@@ -269,6 +315,15 @@ const formatDate = (dateString: string) => {
   color: var(--color-success-500);
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
+}
+
+/* Section alertes de stock */
+.stock-alerts-section {
+  margin-bottom: var(--space-8);
+}
+
+.stock-alerts-table {
+  margin-top: var(--space-4);
 }
 
 /* Section mouvements */
