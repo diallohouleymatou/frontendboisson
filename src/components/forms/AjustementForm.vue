@@ -186,26 +186,8 @@
       </div>
 
       <!-- Section Utilisateur -->
-      <div class="form-section">
-        <h4 class="section-title">Responsable</h4>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="utilisateur">Utilisateur responsable*</label>
-            <select
-              id="utilisateur"
-              v-model="formData.utilisateur"
-              required
-              :class="{ 'error': errors.utilisateur }"
-            >
-              <option value="">Sélectionnez un utilisateur</option>
-              <option v-for="utilisateur in utilisateurs" :key="utilisateur.id" :value="utilisateur">
-                {{ utilisateur.email }}
-              </option>
-            </select>
-            <span v-if="errors.utilisateur" class="error-message">{{ errors.utilisateur }}</span>
-          </div>
-        </div>
-      </div>
+      <!-- Utilisateur responsable is now set automatically to the current user -->
+      <!-- Removed dropdown selection for utilisateur -->
     </div>
 
     <!-- Aperçu de l'ajustement -->
@@ -272,7 +254,6 @@ import type { Utilisateur } from '../../features/utilisateurs/models/utilisateur
 import type { CreateMouvementAjustementRequest } from '../../features/inventaire/models/createMouvementAjustementRequest'
 import { inventaireService } from '../../features/inventaire/services/inventaireService'
 import { BoissonService } from '../../features/boissons/services/boissonService'
-import { UtilisateurService } from '../../features/utilisateurs/services/utilisateurService'
 
 const props = defineProps<{
   isLoading?: boolean
@@ -301,22 +282,31 @@ const selectedBoisson = ref<Boisson>()
 // Données de référence
 const lots = ref<Lot[]>([])
 const boissons = ref<Boisson[]>([])
-const utilisateurs = ref<Utilisateur[]>([])
+// Removed: const utilisateurs = ref<Utilisateur[]>([])
 const filteredLots = ref<Lot[]>([])
 
 // Chargement des données
 onMounted(async () => {
   try {
-    const [lotsList, boissonsList, utilisateursList] = await Promise.all([
+    const [lotsList, boissonsList] = await Promise.all([
       inventaireService.getAllLots(),
       BoissonService.getAllBoissons(),
-      UtilisateurService.getAllUtilisateurs(),
     ])
 
     lots.value = lotsList
     boissons.value = boissonsList
-    utilisateurs.value = utilisateursList
     filteredLots.value = lots.value
+
+    // On mount, set the current user from localStorage (or sessionStorage)
+    // Try to get user from localStorage (adjust if you use sessionStorage or a store)
+    const userStr = localStorage.getItem('user')
+    if (userStr) {
+      try {
+        formData.value.utilisateur = JSON.parse(userStr)
+      } catch (e) {
+        formData.value.utilisateur = undefined
+      }
+    }
   } catch (error) {
     console.error('Erreur lors du chargement des données:', error)
   }
@@ -492,10 +482,6 @@ const validateForm = () => {
 
   if (!formData.value.raison || formData.value.raison.length < 10) {
     errors.value.raison = 'Veuillez fournir une justification détaillée (min. 10 caractères)'
-  }
-
-  if (!formData.value.utilisateur) {
-    errors.value.utilisateur = 'Veuillez sélectionner un utilisateur'
   }
 
   if (difference.value === 0) {
