@@ -8,7 +8,7 @@ export interface Utilisateur {
     role: Role;
     motDePasse?: string;
     isActive: boolean;
-    firstLogin: boolean;
+    isFirstLogin: boolean;
     createdAt?: string;
     updatedAt?: string;
 }
