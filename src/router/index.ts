@@ -7,6 +7,7 @@ import UtilisateurPage from "../pages/UtilisateurPage.vue";
 import MouvementPage from "../pages/MouvementPage.vue";
 import OperationPage from "../pages/OperationPage.vue";
 import LoginPage from "../pages/LoginPage.vue";
+import ChangePasswordView from "../pages/ChangePasswordView.vue";
 import { UtilisateurService } from "../features/utilisateurs/services/utilisateurService";
 import { Role } from "../features/utilisateurs/models/role";
 
@@ -82,6 +83,12 @@ const routes = [
         }
     },
     {
+        path: '/change-password',
+        name: 'change-password',
+        component: ChangePasswordView,
+        meta: { requiresAuth: true }
+    },
+    {
         path: '/:pathMatch(.*)*',
         redirect: '/dashboard'
     }
@@ -106,6 +113,11 @@ router.beforeEach((to, from, next) => {
             return next({ name: 'login' })
         }
 
+        // Vérifier si c'est le premier login et rediriger vers changement de mot de passe
+        if (currentUser?.isFirstLogin && to.name !== 'change-password') {
+            return next({ name: 'change-password' })
+        }
+
         // Vérifier les rôles si nécessaire
         if (to.meta.allowedRoles && currentUser) {
             if (!to.meta.allowedRoles.includes(currentUser.role)) {
@@ -118,6 +130,9 @@ router.beforeEach((to, from, next) => {
 
     // Si l'utilisateur est authentifié et essaie d'accéder à la page de login
     if (isAuthenticated && to.name === 'login') {
+        if (currentUser?.isFirstLogin) {
+            return next({ name: 'change-password' })
+        }
         return next({ name: 'dashboard' })
     }
 
