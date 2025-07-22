@@ -320,7 +320,6 @@ const calculatedNewQuantity = computed(() => {
       return current - formData.value.quantiteDifference
     }
   }
-
   return formData.value.lot.quantiteActuelle
 })
 
