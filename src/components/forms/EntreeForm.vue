@@ -60,30 +60,7 @@
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="dateEntree">Date d'entrée*</label>
-            <input
-              id="dateEntree"
-              v-model="formData.lot.dateEntree"
-              type="datetime-local"
-              required
-              :class="{ 'error': errors.dateEntree }"
-            />
-            <span v-if="errors.dateEntree" class="error-message">{{ errors.dateEntree }}</span>
-          </div>
-          <div class="form-group">
-            <label for="datePeremption">Date de péremption*</label>
-            <input
-              id="datePeremption"
-              v-model="formData.lot.datePeremption"
-              type="date"
-              required
-              :class="{ 'error': errors.datePeremption }"
-            />
-            <span v-if="errors.datePeremption" class="error-message">{{ errors.datePeremption }}</span>
-          </div>
-        </div>
+
 
         <div class="form-row">
           <div class="form-group">
@@ -94,38 +71,6 @@
               type="text"
               placeholder="Nom du fournisseur"
             />
-          </div>
-          <div class="form-group form-group-checkbox">
-            <label class="checkbox-label">
-              <input
-                type="checkbox"
-                v-model="formData.lot.vendable"
-                class="checkbox-input"
-              />
-              <span class="checkbox-text">Produit vendable</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Section Utilisateur -->
-      <div class="form-section">
-        <h4 class="section-title">Utilisateur</h4>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="utilisateur">Utilisateur responsable*</label>
-            <select
-              id="utilisateur"
-              v-model="formData.utilisateur"
-              required
-              :class="{ 'error': errors.utilisateur }"
-            >
-              <option value="">Sélectionnez un utilisateur</option>
-              <option v-for="utilisateur in utilisateurs" :key="utilisateur.id" :value="utilisateur">
-                {{ utilisateur.nom }} ({{ utilisateur.email }})
-              </option>
-            </select>
-            <span v-if="errors.utilisateur" class="error-message">{{ errors.utilisateur }}</span>
           </div>
         </div>
       </div>
@@ -204,17 +149,20 @@ const errors = ref<Record<string, string>>({})
 
 // Données de référence
 const boissons = ref<Boisson[]>([])
-const utilisateurs = ref<Utilisateur[]>([])
 
 // Chargement des données
 onMounted(async () => {
   try {
-    const [boissonsList, utilisateursList] = await Promise.all([
-      BoissonService.getAllBoissons(),
-      UtilisateurService.getAllUtilisateurs(),
+    const [boissonsList] = await Promise.all([
+      BoissonService.getAllBoissons()
     ])
     boissons.value = boissonsList
-    utilisateurs.value = utilisateursList
+
+    // Récupérer l'utilisateur courant depuis le localStorage
+    const userStr = localStorage.getItem('user')
+    if (userStr) {
+      formData.value.utilisateur = JSON.parse(userStr)
+    }
   } catch (error) {
     console.error('Erreur lors du chargement des données:', error)
   }
