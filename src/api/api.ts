@@ -6,4 +6,4 @@ const api :AxiosInstance=axios.create({
     headers:{'Content-Type':'application/json'}
 })
 
-export {api,api_baseUrl}
+   export {api,api_baseUrl}
