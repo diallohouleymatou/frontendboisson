@@ -104,28 +104,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Section Utilisateur -->
-      <div class="form-section">
-        <h4 class="section-title">Utilisateur</h4>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="utilisateur">Utilisateur responsable*</label>
-            <select
-              id="utilisateur"
-              v-model="formData.utilisateur"
-              required
-              :class="{ 'error': errors.utilisateur }"
-            >
-              <option value="">Sélectionnez un utilisateur</option>
-              <option v-for="utilisateur in utilisateurs" :key="utilisateur.id" :value="utilisateur">
-                {{ utilisateur.email }}
-              </option>
-            </select>
-            <span v-if="errors.utilisateur" class="error-message">{{ errors.utilisateur }}</span>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Résumé de la demande -->
@@ -199,13 +177,14 @@ const utilisateurs = ref<Utilisateur[]>([])
 // Chargement des données
 onMounted(async () => {
   try {
-    const [boissonsList, utilisateursList] = await Promise.all([
-      BoissonService.getAllBoissons(),
-      UtilisateurService.getAllUtilisateurs(),
-    ])
-
+    const boissonsList = await BoissonService.getAllBoissons()
     boissons.value = boissonsList
-    utilisateurs.value = utilisateursList
+
+    // Récupérer l'utilisateur courant depuis le localStorage
+    const userStr = localStorage.getItem('user')
+    if (userStr) {
+      formData.value.utilisateur = JSON.parse(userStr)
+    }
   } catch (error) {
     console.error('Erreur lors du chargement des données:', error)
   }
@@ -223,7 +202,6 @@ const isFormValid = computed(() => {
          formData.value.quantiteDemandee > 0 &&
          formData.value.raison &&
          (formData.value.raison !== 'AUTRE' || formData.value.raisonAutre) &&
-         formData.value.utilisateur &&
          Object.keys(errors.value).length === 0
 })
 
@@ -260,10 +238,6 @@ const validateForm = () => {
 
   if (formData.value.raison === 'AUTRE' && !formData.value.raisonAutre) {
     errors.value.raisonAutre = 'Veuillez préciser la raison'
-  }
-
-  if (!formData.value.utilisateur) {
-    errors.value.utilisateur = 'Veuillez sélectionner un utilisateur'
   }
 
   return Object.keys(errors.value).length === 0
