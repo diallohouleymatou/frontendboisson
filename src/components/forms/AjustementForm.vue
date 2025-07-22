@@ -184,28 +184,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Section Utilisateur -->
-      <div class="form-section">
-        <h4 class="section-title">Responsable</h4>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="utilisateur">Utilisateur responsable*</label>
-            <select
-              id="utilisateur"
-              v-model="formData.utilisateur"
-              required
-              :class="{ 'error': errors.utilisateur }"
-            >
-              <option value="">Sélectionnez un utilisateur</option>
-              <option v-for="utilisateur in utilisateurs" :key="utilisateur.id" :value="utilisateur">
-                {{ utilisateur.email }}
-              </option>
-            </select>
-            <span v-if="errors.utilisateur" class="error-message">{{ errors.utilisateur }}</span>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Aperçu de l'ajustement -->
@@ -317,6 +295,12 @@ onMounted(async () => {
     boissons.value = boissonsList
     utilisateurs.value = utilisateursList
     filteredLots.value = lots.value
+
+    // Définir l'utilisateur courant depuis le localStorage
+    const currentUser = localStorage.getItem('user')
+    if (currentUser) {
+      formData.value.utilisateur = JSON.parse(currentUser)
+    }
   } catch (error) {
     console.error('Erreur lors du chargement des données:', error)
   }
@@ -370,7 +354,6 @@ const isFormValid = computed(() => {
          formData.value.typeAjustement &&
          formData.value.modeAjustement &&
          formData.value.raison &&
-         formData.value.utilisateur &&
          hasValidAdjustment.value &&
          Object.keys(errors.value).length === 0
 })
@@ -492,10 +475,6 @@ const validateForm = () => {
 
   if (!formData.value.raison || formData.value.raison.length < 10) {
     errors.value.raison = 'Veuillez fournir une justification détaillée (min. 10 caractères)'
-  }
-
-  if (!formData.value.utilisateur) {
-    errors.value.utilisateur = 'Veuillez sélectionner un utilisateur'
   }
 
   if (difference.value === 0) {
