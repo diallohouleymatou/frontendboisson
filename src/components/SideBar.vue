@@ -1,5 +1,5 @@
 <template>
-  <aside class="app-sidebar" :class="{ 'collapsed': isCollapsed }">
+  <aside v-if="shouldShowSidebar" class="app-sidebar" :class="{ 'collapsed': isCollapsed }">
     <div class="sidebar-content">
       <!-- Navigation Menu -->
       <nav class="sidebar-nav">
@@ -10,12 +10,6 @@
               <router-link to="/dashboard" class="nav-link" active-class="active">
                 <HomeIcon class="nav-icon w-5 h-5" />
                 <span class="nav-text">Tableau de bord</span>
-              </router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/stock" class="nav-link" active-class="active">
-                <ChartBarSquareIcon class="nav-icon w-5 h-5" />
-                <span class="nav-text">Vue d'ensemble</span>
               </router-link>
             </li>
           </ul>
@@ -60,14 +54,12 @@
                 <span class="nav-text">Utilisateurs</span>
               </router-link>
             </li>
-
           </ul>
         </div>
 
-        <div class="nav-section">
+        <div class="nav-section" v-if="isGerant">
           <h3 class="nav-section-title">Rapports</h3>
           <ul class="nav-list">
-
             <li class="nav-item">
               <router-link to="/analyse" class="nav-link" active-class="active">
                 <PresentationChartLineIcon class="nav-icon w-5 h-5" />
@@ -94,7 +86,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { UtilisateurService } from '../features/utilisateurs/services/utilisateurService'
 import {
   HomeIcon,
@@ -115,13 +107,21 @@ interface Props {
 defineProps<Props>()
 
 const router = useRouter()
+const route = useRoute()
 const handleLogout = async () => {
   await UtilisateurService.logout()
   router.push('/login')
 }
 
-const user = { role: 'GERANT' }
-const isGerant = computed(() => user.role === 'GERANT')
+const user = computed(() => UtilisateurService.getCurrentUser())
+const isAuthenticated = computed(() => UtilisateurService.isAuthenticated())
+const isGerant = computed(() => user.value?.role === 'GERANT')
+
+// Pages où le sidebar doit être masqué
+const hiddenSidebarRoutes = ['login', 'change-password']
+const shouldShowSidebar = computed(() => {
+  return isAuthenticated.value && !hiddenSidebarRoutes.includes(route.name as string)
+})
 </script>
 
 <style scoped>
