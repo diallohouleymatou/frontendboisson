@@ -69,7 +69,7 @@
           <ul class="nav-list">
 
             <li class="nav-item">
-              <router-link to="/analytics" class="nav-link" active-class="active">
+              <router-link to="/analyse" class="nav-link" active-class="active">
                 <PresentationChartLineIcon class="nav-icon w-5 h-5" />
                 <span class="nav-text">Analyses</span>
               </router-link>
