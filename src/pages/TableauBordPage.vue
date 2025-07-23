@@ -83,69 +83,8 @@ const formatDate = (dateString: string) => {
       </template>
     </div>
 
-    <!-- Alertes de stock -->
-    <div v-if="dashboardStats?.stockAlerts && dashboardStats.stockAlerts.length" class="stock-alerts-section">
-      <h2 class="section-title">Alertes de Stock Faible</h2>
-      <table class="modern-table stock-alerts-table">
-        <thead>
-          <tr>
-            <th>Boisson</th>
-            <th>Quantité</th>
-            <th>Seuil</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="alert in dashboardStats.stockAlerts" :key="alert.lotId">
-            <td>{{ alert.boisson }}</td>
-            <td class="quantity-cell warning">{{ alert.quantite }}</td>
-            <td>{{ alert.seuil }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
     <!-- Mouvements récents avec design moderne -->
-    <div class="movements-section">
-      <div class="section-header">
-        <h2 class="section-title">Mouvements Récents</h2>
-        <button class="btn btn-outline">Voir tout</button>
-      </div>
-
-      <div class="table-container">
-        <table class="modern-table">
-          <thead>
-          <tr>
-            <th>Type</th>
-            <th>Produit</th>
-            <th>Quantité</th>
-            <th>Date</th>
-            <th>Status</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr
-              v-for="movement in recentMovements"
-              :key="movement.id"
-              class="table-row"
-          >
-            <td>
-                <span
-                    :class="movement.type === 'Entrée' ? 'badge badge-success' : 'badge badge-warning'"
-                >
-                  {{ movement.type }}
-                </span>
-            </td>
-            <td class="product-cell">{{ movement.produit }}</td>
-            <td class="quantity-cell">{{ movement.quantite }}</td>
-            <td class="date-cell">{{ formatDate(movement.date) }}</td>
-            <td>
-              <div class="status-indicator" :class="`status-${movement.status}`"></div>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <!-- La section du tableau des mouvements récents a été supprimée pour un design plus épuré -->
   </div>
 </template>
 
@@ -278,52 +217,6 @@ const formatDate = (dateString: string) => {
   color: #d32f2f;
 }
 
-/* Section alertes de stock */
-.stock-alerts-section {
-  margin-bottom: var(--space-8);
-  background: #fff3e0;
-  border: 1px solid #ffe0b2;
-  border-radius: 10px;
-  padding: var(--space-5);
-}
-
-.section-title {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  margin-bottom: var(--space-4);
-  color: var(--color-warning-700);
-}
-
-/* Tableau moderne */
-.modern-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-}
-
-.modern-table th, .modern-table td {
-  padding: 0.8rem 1.2rem;
-  text-align: left;
-}
-
-.modern-table th {
-  background: #f5f5f5;
-  color: #333;
-  font-weight: 600;
-}
-
-.modern-table tr:not(:last-child) td {
-  border-bottom: 1px solid #eee;
-}
-
-.quantity-cell.warning {
-  color: #d32f2f;
-  font-weight: bold;
-}
 
 /* Section mouvements */
 .movements-section {
