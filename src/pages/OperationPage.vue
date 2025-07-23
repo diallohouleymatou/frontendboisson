@@ -53,12 +53,11 @@
     </div>
 
     <!-- Tableau des opérations -->
-    <div class="table-wrapper">
+    <div class="table-wrapper system-table-wrapper">
       <div v-if="isLoading" class="loading-state">
         <div class="loading-spinner"></div>
         <p>Chargement des opérations en cours...</p>
       </div>
-
       <div v-else-if="filteredOperations.length === 0" class="empty-state">
         <div class="empty-icon">
           <ClipboardDocumentListIcon class="w-12 h-12" />
@@ -66,8 +65,7 @@
         <h3>Aucune opération trouvée</h3>
         <p>{{ searchTerm ? 'Aucun résultat pour ces critères' : 'Les opérations s\'afficheront ici une fois créées' }}</p>
       </div>
-
-      <table v-else class="modern-table">
+      <table v-else class="modern-table system-table">
         <thead>
           <tr>
             <th @click="handleSort('id')" class="sortable-header" :class="{ 'sorted': sortBy === 'id' }">
@@ -611,9 +609,22 @@ const closeHistoryModal = () => {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.system-table-wrapper {
+  background: var(--color-bg-elevated, #fff);
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border-light, #e2e8f0);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
 .modern-table {
   width: 100%;
   border-collapse: collapse;
+}
+
+.system-table {
+  background: var(--color-bg-primary, #fff);
+  color: var(--color-text-primary, #1e293b);
 }
 
 .modern-table th {
@@ -624,6 +635,12 @@ const closeHistoryModal = () => {
   color: #374151;
   border-bottom: 1px solid #e5e7eb;
   font-size: 0.875rem;
+}
+
+.system-table th {
+  background: var(--color-bg-tertiary, #f8fafc);
+  color: var(--color-text-secondary, #374151);
+  border-bottom: 1px solid var(--color-border-light, #e5e7eb);
 }
 
 .sortable-header {
@@ -674,18 +691,18 @@ const closeHistoryModal = () => {
 }
 
 .type-entree {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--color-success-50, #dcfce7);
+  color: var(--color-success-700, #166534);
 }
 
 .type-sortie {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--color-error-50, #fee2e2);
+  color: var(--color-error-700, #991b1b);
 }
 
 .type-ajustement {
-  background: #fed7aa;
-  color: #9a3412;
+  background: var(--color-warning-50, #fefce8);
+  color: var(--color-warning-700, #9a3412);
 }
 
 .lot-info, .boisson-info, .user-info {
@@ -731,18 +748,17 @@ const closeHistoryModal = () => {
 }
 
 .impact-positive {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--color-success-50, #dcfce7);
+  color: var(--color-success-700, #166534);
 }
 
 .impact-negative {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--color-error-50, #fee2e2);
+  color: var(--color-error-700, #991b1b);
 }
 
 .impact-neutral {
-  background: #fed7aa;
-  color: #9a3412;
+  background: var(--color-warning-50, #fefce8);
 }
 
 .date-container {
