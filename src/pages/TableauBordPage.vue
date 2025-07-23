@@ -62,8 +62,8 @@ const formatDate = (dateString: string) => {
 
     <!-- Statistiques avec animations -->
     <div class="stats-grid">
-      <div v-if="loadingStats">Chargement des statistiques...</div>
-      <div v-else-if="statsError">{{ statsError }}</div>
+      <div v-if="loadingStats" class="dashboard-message loading">Chargement des statistiques...</div>
+      <div v-else-if="statsError" class="dashboard-message error">{{ statsError }}</div>
       <template v-else>
         <div
           v-for="(stat, index) in stats"
@@ -78,9 +78,6 @@ const formatDate = (dateString: string) => {
           <div class="stat-content">
             <div class="stat-number">{{ stat.value }}</div>
             <div class="stat-label">{{ stat.label }}</div>
-          </div>
-          <div class="stat-trend">
-            <span class="trend-indicator">↗</span>
           </div>
         </div>
       </template>
@@ -200,283 +197,215 @@ const formatDate = (dateString: string) => {
 }
 
 .dashboard-subtitle {
-  font-size: var(--font-size-lg);
   color: var(--color-text-secondary);
-  font-weight: var(--font-weight-normal);
-}
-
-.header-decoration {
-  position: absolute;
-  top: 50%;
-  right: -50px;
-  width: 200px;
-  height: 200px;
-  background: var(--color-primary-500);
-  border-radius: 50%;
-  opacity: 0.1;
-  transform: translateY(-50%);
+  font-size: var(--font-size-lg);
+  margin-bottom: 0;
 }
 
 /* Grille de statistiques */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-6);
   margin-bottom: var(--space-8);
 }
 
 .stat-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
   background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  position: relative;
-  overflow: hidden;
-  transition: all var(--transition-base);
-  animation: slideUp 0.6s ease-out;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: var(--space-5) var(--space-4);
+  border: 1px solid var(--color-border-light);
+  animation: fadeInUp 0.5s cubic-bezier(.23,1.01,.32,1) both;
   animation-delay: var(--delay);
-  animation-fill-mode: both;
 }
 
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  transition: all var(--transition-base);
-}
-
-.stat-card--primary::before { background: var(--color-primary-500); }
-.stat-card--accent::before { background: var(--color-accent-500); }
-.stat-card--success::before { background: var(--color-success-500); }
-.stat-card--info::before { background: var(--color-info-500); }
-
-.stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-xl);
-}
-
-.stat-card--primary:hover { box-shadow: var(--shadow-lg), var(--glow-primary); }
-.stat-card--accent:hover { box-shadow: var(--shadow-lg), var(--glow-accent); }
-.stat-card--success:hover { box-shadow: var(--shadow-lg), var(--glow-success); }
+.stat-card--primary { border-left: 4px solid var(--color-primary-500); }
+.stat-card--accent { border-left: 4px solid var(--color-accent-500); }
+.stat-card--success { border-left: 4px solid var(--color-success-500); }
+.stat-card--info { border-left: 4px solid var(--color-info-500); }
+.stat-card--warning { border-left: 4px solid var(--color-warning-500); }
+.stat-card--danger { border-left: 4px solid var(--color-danger-500); }
 
 .stat-icon-wrapper {
+  background: var(--color-bg-secondary);
+  border-radius: 50%;
+  padding: var(--space-3);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
-  border-radius: var(--radius-lg);
-  margin-bottom: var(--space-4);
-  position: relative;
 }
-
-.stat-card--primary .stat-icon-wrapper { background: var(--color-primary-50); }
-.stat-card--accent .stat-icon-wrapper { background: var(--color-accent-50); }
-.stat-card--success .stat-icon-wrapper { background: var(--color-success-50); }
-.stat-card--info .stat-icon-wrapper { background: var(--color-info-50); }
 
 .stat-icon {
-  width: 32px;
-  height: 32px;
+  width: 2.2rem;
+  height: 2.2rem;
+  color: var(--color-primary-500);
 }
 
-.stat-card--primary .stat-icon { color: var(--color-primary-500); }
-.stat-card--accent .stat-icon { color: var(--color-accent-500); }
-.stat-card--success .stat-icon { color: var(--color-success-500); }
-.stat-card--info .stat-icon { color: var(--color-info-500); }
-
 .stat-content {
-  text-align: center;
+  flex: 1;
 }
 
 .stat-number {
-  font-size: var(--font-size-3xl);
+  font-size: 2.2rem;
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
-  margin-bottom: var(--space-2);
 }
 
 .stat-label {
-  font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
-  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
 }
 
-.stat-trend {
-  position: absolute;
-  top: var(--space-4);
-  right: var(--space-4);
+.dashboard-message {
+  padding: 1.2rem;
+  border-radius: 8px;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  text-align: center;
 }
 
-.trend-indicator {
-  color: var(--color-success-500);
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
+.dashboard-message.loading {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.dashboard-message.error {
+  background: #ffebee;
+  color: #d32f2f;
 }
 
 /* Section alertes de stock */
 .stock-alerts-section {
   margin-bottom: var(--space-8);
+  background: #fff3e0;
+  border: 1px solid #ffe0b2;
+  border-radius: 10px;
+  padding: var(--space-5);
 }
 
-.stock-alerts-table {
-  margin-top: var(--space-4);
+.section-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-4);
+  color: var(--color-warning-700);
+}
+
+/* Tableau moderne */
+.modern-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.modern-table th, .modern-table td {
+  padding: 0.8rem 1.2rem;
+  text-align: left;
+}
+
+.modern-table th {
+  background: #f5f5f5;
+  color: #333;
+  font-weight: 600;
+}
+
+.modern-table tr:not(:last-child) td {
+  border-bottom: 1px solid #eee;
+}
+
+.quantity-cell.warning {
+  color: #d32f2f;
+  font-weight: bold;
 }
 
 /* Section mouvements */
 .movements-section {
+  margin-bottom: var(--space-8);
   background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  box-shadow: var(--shadow-base);
+  border-radius: 10px;
+  padding: var(--space-5);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 
 .section-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-6);
-}
-
-.section-title {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
 }
 
 .btn {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  text-decoration: none;
-  transition: all var(--transition-base);
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .btn-outline {
-  background: transparent;
-  border: 1px solid var(--color-primary-500);
-  color: var(--color-primary-500);
+  background: #fff;
+  color: #1976d2;
+  border: 1px solid #1976d2;
 }
 
 .btn-outline:hover {
-  background: var(--color-primary-500);
-  color: var(--color-text-inverse);
-}
-
-/* Tableau moderne */
-.table-container {
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  border: 1px solid var(--color-border-light);
-}
-
-.modern-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--color-bg-primary);
-}
-
-.modern-table th {
-  background: var(--color-bg-tertiary);
-  padding: var(--space-4);
-  text-align: left;
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-  border-bottom: 1px solid var(--color-border-light);
-}
-
-.modern-table td {
-  padding: var(--space-4);
-  border-bottom: 1px solid var(--color-border-light);
-}
-
-.table-row {
-  transition: all var(--transition-fast);
-}
-
-.table-row:hover {
-  background: var(--color-bg-secondary);
-}
-
-.table-row:last-child td {
-  border-bottom: none;
+  background: #1976d2;
+  color: #fff;
 }
 
 /* Badges et indicateurs */
 .badge {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
+  display: inline-block;
+  padding: 0.2em 0.7em;
+  border-radius: 12px;
+  font-size: 0.95em;
+  font-weight: 600;
+  color: #fff;
 }
 
 .badge-success {
-  background: var(--color-success-50);
-  color: var(--color-success-700);
+  background: #43a047;
 }
 
 .badge-warning {
-  background: var(--color-warning-50);
-  color: var(--color-warning-700);
-}
-
-.product-cell {
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-}
-
-.quantity-cell {
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-}
-
-.date-cell {
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
+  background: #ffa000;
 }
 
 .status-indicator {
-  width: 8px;
-  height: 8px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  margin: 0 auto;
+  display: inline-block;
 }
 
 .status-success {
-  background: var(--color-success-500);
+  background: #43a047;
 }
 
 .status-warning {
-  background: var(--color-warning-500);
+  background: #ffa000;
 }
 
 /* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 /* Responsive */
 @media (max-width: 768px) {
