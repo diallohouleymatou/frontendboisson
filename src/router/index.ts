@@ -11,6 +11,7 @@ import ChangePasswordView from "../pages/ChangePasswordView.vue";
 import { UtilisateurService } from "../features/utilisateurs/services/utilisateurService";
 import { Role } from "../features/utilisateurs/models/role";
 import Analyse from "../pages/Analyse.vue";
+import AccesRefuse from "../pages/AccesRefuse.vue";
 
 const routes = [
     {
@@ -33,7 +34,7 @@ const routes = [
         path: '/analyse',
         name: 'analyse',
         component: Analyse,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, allowedRoles: [Role.GERANT] }
     },
     {
         path: '/boisson',
@@ -96,6 +97,12 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/acces-refuse',
+        name: 'acces-refuse',
+        component: AccesRefuse,
+        meta: { requiresAuth: true }
+    },
+    {
         path: '/:pathMatch(.*)*',
         redirect: '/dashboard'
     }
@@ -128,8 +135,8 @@ router.beforeEach((to, from, next) => {
         // Vérifier les rôles si nécessaire
         if (to.meta.allowedRoles && currentUser) {
             if (!to.meta.allowedRoles.includes(currentUser.role)) {
-                // Rediriger vers dashboard si le rôle n'est pas autorisé
-                return next({ name: 'dashboard' })
+                // Rediriger vers la page d'accès refusé si le rôle n'est pas autorisé
+                return next({ name: 'acces-refuse' })
             }
         }
         return next()
