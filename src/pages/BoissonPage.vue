@@ -203,158 +203,97 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
 </script>
 
 <template>
-  <div class="boisson-page">
+  <div class="boisson-page modern-container">
     <!-- En-tête avec actions -->
-    <div class="table-header">
+    <div class="table-header modern-header">
       <div class="header-left">
-        <h2 class="table-title">Gestion des Boissons</h2>
+        <h2 class="table-title main-title">Gestion des Boissons</h2>
         <p class="table-subtitle">{{ filteredBoissons.length }} boisson(s) trouvée(s)</p>
       </div>
       <div class="header-actions">
-        <button class="btn btn-primary" @click="handleAddClick" :disabled="!isGerant">
-          <PlusIcon class="w-4 h-4" />
+        <button class="btn btn-primary btn-lg" @click="handleAddClick" :disabled="!isGerant">
+          <PlusIcon class="w-5 h-5 mr-2" />
           Ajouter
         </button>
       </div>
     </div>
-    <div class="filters-bar">
-      <div class="search-container">
+    <div class="filters-bar modern-filters">
+      <div class="search-container modern-search">
         <MagnifyingGlassIcon class="search-icon" />
         <input
             v-model="searchTerm"
             type="text"
             placeholder="Rechercher une boisson..."
-            class="search-input"
+            class="search-input modern-input"
         />
       </div>
-
-      <div class="filter-container">
+      <div class="filter-container modern-filter-select">
         <FunnelIcon class="filter-icon" />
-        <select v-model="selectedFilter" class="filter-select">
+        <select v-model="selectedFilter" class="filter-select modern-input">
           <option v-for="filter in filters" :key="filter.value" :value="filter.value">
             {{ filter.label }}
           </option>
         </select>
       </div>
     </div>
-
     <!-- Tableau responsive -->
-    <div class="table-wrapper">
-      <div v-if="isLoading" class="loading-state">
+    <div class="table-wrapper modern-table-wrapper">
+      <div v-if="isLoading" class="loading-state modern-loading">
         <div class="loading-spinner"></div>
         <p>Chargement des boissons...</p>
       </div>
-
-      <div v-else-if="filteredBoissons.length === 0" class="empty-state">
+      <div v-else-if="filteredBoissons.length === 0" class="empty-state modern-empty">
         <p>Aucune boisson trouvée</p>
       </div>
-
-      <table v-else class="modern-table">
+      <table v-else class="boisson-table modern-table">
         <thead>
         <tr>
-          <th
-              v-for="column in [
-                { key: 'id', label: 'ID' },
-                { key: 'nom', label: 'Nom' },
-                { key: 'description', label: 'Description' },
-                { key: 'prix', label: 'Prix' },
-                { key: 'volume', label: 'Volume' },
-                { key: 'unite', label: 'Unité' },
-                { key: 'seuil', label: 'Seuil' },
-                { key: 'isActive', label: 'Statut' }
-              ]"
-              :key="column.key"
-              @click="handleSort(column.key)"
-              class="sortable-header"
-              :class="{ 'sorted': sortBy === column.key }"
-          >
-            {{ column.label }}
-            <span class="sort-indicator">
-                <span v-if="sortBy === column.key">
-                  {{ sortOrder === 'asc' ? '↑' : '↓' }}
-                </span>
-              </span>
-          </th>
-          <th class="actions-header">Actions</th>
+          <th @click="handleSort('nom')" :class="{active: sortBy==='nom'}">Nom</th>
+          <th @click="handleSort('description')" :class="{active: sortBy==='description'}">Description</th>
+          <th @click="handleSort('prixVente')" :class="{active: sortBy==='prixVente'}">Prix</th>
+          <th @click="handleSort('isActive')" :class="{active: sortBy==='isActive'}">Statut</th>
+          <th>Actions</th>
         </tr>
         </thead>
         <tbody>
-        <tr
-            v-for="boisson in filteredBoissons"
-            :key="boisson.id"
-            class="table-row"
-            :class="{ 'inactive-row': !boisson.isActive }"
-        >
-          <td class="id-cell">{{ boisson.id }}</td>
-          <td class="name-cell">
-            <div class="product-info">
-              <span class="product-name">{{ boisson.nom }}</span>
-            </div>
+        <tr v-for="boisson in filteredBoissons" :key="boisson.id" class="modern-row">
+          <td>{{ boisson.nom }}</td>
+          <td>{{ boisson.description }}</td>
+          <td>{{ formatPrice(boisson.prixVente) }}</td>
+          <td>
+            <span :class="['status-badge', boisson.isActive ? 'active' : 'inactive']">
+              <EyeIcon v-if="boisson.isActive" class="w-4 h-4 mr-1" />
+              <EyeSlashIcon v-else class="w-4 h-4 mr-1" />
+              {{ boisson.isActive ? 'Active' : 'Inactive' }}
+            </span>
           </td>
-          <td class="description-cell">
-            <span class="description-text">{{ boisson.description }}</span>
-          </td>
-          <td class="price-cell">
-            <span class="price-value">{{ formatPrice(boisson.prix) }}</span>
-          </td>
-          <td class="volume-cell">{{ boisson.volume }}</td>
-          <td class="unit-cell">
-            <span class="unit-badge">{{ boisson.unite }}</span>
-          </td>
-          <td class="threshold-cell">
-              <span
-                  class="threshold-badge"
-                  :class="{ 'threshold-low': boisson.seuil <= 10 }"
-              >
-                {{ boisson.seuil }}
-              </span>
-          </td>
-          <td class="status-cell">
-              <span
-                  class="status-badge"
-                  :class="boisson.isActive ? 'status-active' : 'status-inactive'"
-              >
-                {{ boisson.isActive ? 'Actif' : 'Inactif' }}
-              </span>
-          </td>
-          <td class="actions-cell">
-            <div class="actions-group">
-              <button
-                  @click="handleEdit(boisson)"
-                  class="action-btn action-btn-edit"
-                  title="Modifier"
-              >
-                <PencilIcon class="w-4 h-4" />
-              </button>
-              <button
-                  @click="handleToggleActive(boisson)"
-                  class="action-btn action-btn-toggle"
-                  :title="boisson.isActive ? 'Désactiver' : 'Activer'"
-              >
-                <EyeIcon v-if="boisson.isActive" class="w-4 h-4" />
-                <EyeSlashIcon v-else class="w-4 h-4" />
-              </button>
-              <button
-                  @click="handleDelete(boisson)"
-                  class="action-btn action-btn-delete"
-                  title="Supprimer"
-              >
-                <TrashIcon class="w-4 h-4" />
-              </button>
-            </div>
+          <td>
+            <button class="btn btn-icon btn-edit" @click="handleEdit(boisson)" :disabled="!isGerant" title="Modifier">
+              <PencilIcon class="w-4 h-4" />
+            </button>
+            <button class="btn btn-icon btn-delete" @click="handleDelete(boisson)" :disabled="!isGerant" title="Supprimer">
+              <TrashIcon class="w-4 h-4" />
+            </button>
+            <button class="btn btn-icon btn-toggle" @click="handleToggleActive(boisson)" :disabled="!isGerant" title="Activer/Désactiver">
+              <EyeIcon v-if="!boisson.isActive" class="w-4 h-4" />
+              <EyeSlashIcon v-else class="w-4 h-4" />
+            </button>
           </td>
         </tr>
         </tbody>
       </table>
     </div>
-
-    <Modal v-model="showModal" :title="modalTitle">
-      <BoissonForm
-        :boisson="selectedBoisson"
-        @submit="handleSubmit"
-        @cancel="closeModal"
-      />
+    <!-- Modale -->
+    <Modal v-if="showModal" @close="closeModal">
+      <template #title>{{ modalTitle }}</template>
+      <BoissonForm :boisson="selectedBoisson" @submit="handleSubmit" @cancel="closeModal" />
     </Modal>
+    <!-- Feedback visuel (succès/erreur) -->
+    <transition name="fade">
+      <div v-if="feedbackMessage" :class="['feedback-message', feedbackType]">
+        {{ feedbackMessage }}
+      </div>
+    </transition>
   </div>
 </template>
 
