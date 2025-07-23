@@ -421,7 +421,6 @@ input.error {
     transform: rotate(360deg);
   }
 }
-
 @media (max-width: 480px) {
   .login-card {
     padding: 1.5rem;
