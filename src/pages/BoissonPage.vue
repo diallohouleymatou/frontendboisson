@@ -50,7 +50,6 @@ onMounted(async () => {
 const filteredBoissons = computed(() => {
   let filtered = boissons.value;
 
-  // Filtre par recherche
   if (searchTerm.value) {
     filtered = filtered.filter(boisson =>
         boisson.nom.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
@@ -66,14 +65,13 @@ const filteredBoissons = computed(() => {
         case 'inactive':
           return !boisson.isActive;
         case 'low-stock':
-          return boisson.seuil > 10; // Exemple de logique stock faible
+          return boisson.seuil > 10;
         default:
           return true;
       }
     });
   }
 
-  // Tri
   filtered.sort((a, b) => {
     const aValue = a[sortBy.value as keyof Boisson];
     const bValue = b[sortBy.value as keyof Boisson];
@@ -196,15 +194,10 @@ const handleAddClick = () => {
 const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effectuer cette opération.") => {
   ElMessage.warning(message);
 };
-// Remplacer tous les endroits où une action non autorisée pourrait être tentée (ex: suppression, édition, etc.)
-// Par exemple, dans les handlers d'action :
-// if (!isGerant.value) { handleUnauthorizedAction(); return; }
-// ...
 </script>
 
 <template>
   <div class="boisson-page modern-container">
-    <!-- En-tête avec actions -->
     <div class="table-header modern-header">
       <div class="header-left">
         <h2 class="table-title main-title">Gestion des Boissons</h2>
@@ -236,7 +229,6 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
         </select>
       </div>
     </div>
-    <!-- Tableau responsive -->
     <div class="table-wrapper modern-table-wrapper">
       <div v-if="isLoading" class="loading-state modern-loading">
         <div class="loading-spinner"></div>
@@ -259,7 +251,7 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
         <tr v-for="boisson in filteredBoissons" :key="boisson.id" class="modern-row">
           <td>{{ boisson.nom }}</td>
           <td>{{ boisson.description }}</td>
-          <td>{{ formatPrice(boisson.prixVente) }}</td>
+          <td>{{ formatPrice(boisson.prix) }}</td>
           <td>
             <span :class="['status-badge', boisson.isActive ? 'active' : 'inactive']">
               <EyeIcon v-if="boisson.isActive" class="w-4 h-4 mr-1" />
@@ -283,12 +275,10 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
         </tbody>
       </table>
     </div>
-    <!-- Modale -->
     <Modal v-if="showModal" @close="closeModal">
       <template #title>{{ modalTitle }}</template>
       <BoissonForm :boisson="selectedBoisson" @submit="handleSubmit" @cancel="closeModal" />
     </Modal>
-    <!-- Feedback visuel (succès/erreur) -->
     <transition name="fade">
       <div v-if="feedbackMessage" :class="['feedback-message', feedbackType]">
         {{ feedbackMessage }}
@@ -298,9 +288,6 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
 </template>
 
 <style scoped>
-/* Import du système de design */
-
-
 .boisson-page {
   padding: 20px;
 }
@@ -312,7 +299,6 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
   margin-bottom: 20px;
 }
 
-/* En-tête du tableau */
 .table-header {
   display: flex;
   justify-content: space-between;
@@ -349,30 +335,46 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
   gap: var(--space-3);
 }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  border: none;
-  border-radius: var(--radius-md);
-  font-weight: var(--font-weight-medium);
-  text-decoration: none;
-  cursor: pointer;
-  transition: all var(--transition-base);
+.btn,
+.btn-primary,
+.btn-icon,
+.btn-edit,
+.btn-delete,
+.btn-toggle {
+  font-size: 1.1rem;
+  min-width: 44px;
+  min-height: 44px;
 }
 
-.btn-primary {
-  background: var(--color-primary-500);
-  color: var(--color-text-inverse);
+.btn-icon {
+  padding: 0.5rem;
+  border-radius: 50%;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  margin-right: 0.2rem;
+  transition: background 0.2s, box-shadow 0.2s;
 }
 
-.btn-primary:hover {
-  background: var(--color-primary-600);
-  box-shadow: var(--glow-primary);
+.btn-icon:hover:not(:disabled) {
+  background: #e0f7fa;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
 
-/* Barre de filtres */
+.btn-edit {
+  color: #1976d2;
+}
+.btn-delete {
+  color: #d32f2f;
+}
+.btn-toggle {
+  color: #388e3c;
+}
+
+.btn[disabled], .btn-icon[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .filters-bar {
   display: flex;
   gap: var(--space-4);
@@ -436,7 +438,6 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
   cursor: pointer;
 }
 
-/* Wrapper du tableau */
 .table-wrapper {
   background: var(--color-bg-elevated);
   border-radius: var(--radius-lg);
@@ -445,7 +446,6 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
   box-shadow: var(--shadow-base);
 }
 
-/* États de chargement et vide */
 .loading-state, .empty-state {
   display: flex;
   flex-direction: column;
@@ -470,7 +470,6 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
   100% { transform: rotate(360deg); }
 }
 
-/* Tableau moderne */
 .modern-table {
   width: 100%;
   border-collapse: collapse;
@@ -534,7 +533,6 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
   opacity: 0.6;
 }
 
-/* Cellules spécifiques */
 .id-cell {
   font-weight: var(--font-weight-medium);
   color: var(--color-text-tertiary);
@@ -604,7 +602,6 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
   color: var(--color-error-700);
 }
 
-/* Actions */
 .actions-group {
   display: flex;
   gap: var(--space-2);
@@ -650,7 +647,6 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
   background: var(--color-error-100);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .table-header {
     flex-direction: column;
