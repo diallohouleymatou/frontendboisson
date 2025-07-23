@@ -10,6 +10,7 @@ import LoginPage from "../pages/LoginPage.vue";
 import ChangePasswordView from "../pages/ChangePasswordView.vue";
 import { UtilisateurService } from "../features/utilisateurs/services/utilisateurService";
 import { Role } from "../features/utilisateurs/models/role";
+import Analyse from "../pages/Analyse.vue";
 
 const routes = [
     {
@@ -26,6 +27,12 @@ const routes = [
         path: '/dashboard',
         name: 'dashboard',
         component: TableauBordPage,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/analyse',
+        name: 'analyse',
+        component: Analyse,
         meta: { requiresAuth: true }
     },
     {
