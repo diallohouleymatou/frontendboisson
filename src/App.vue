@@ -29,9 +29,9 @@ const toggleSidebar = () => {
 
 .app-main {
   margin-left: var(--layout-sidebar-width);
-  margin-top: var(--layout-header-height);
+  margin-top: 0;
   transition: margin-left var(--transition-base);
-  min-height: calc(100vh - var(--layout-header-height));
+  min-height: 100vh;
 }
 
 .app-main.sidebar-collapsed {
