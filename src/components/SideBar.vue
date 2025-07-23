@@ -1,83 +1,55 @@
 <template>
   <aside v-if="shouldShowSidebar" class="app-sidebar" :class="{ 'collapsed': isCollapsed }">
     <div class="sidebar-content">
-      <!-- Navigation Menu -->
       <nav class="sidebar-nav">
-        <div class="nav-section">
-          <h3 class="nav-section-title">Aperçu</h3>
-          <ul class="nav-list">
-            <li class="nav-item">
-              <router-link to="/dashboard" class="nav-link" active-class="active">
-                <HomeIcon class="nav-icon w-5 h-5" />
-                <span class="nav-text">Tableau de bord</span>
-              </router-link>
-            </li>
-          </ul>
-        </div>
-
-        <div class="nav-section">
-          <h3 class="nav-section-title">Inventaire</h3>
-          <ul class="nav-list">
-            <li class="nav-item">
-              <router-link to="/boisson" class="nav-link" active-class="active">
-                <BeakerIcon class="nav-icon w-5 h-5" />
-                <span class="nav-text">Boissons</span>
-              </router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/lot" class="nav-link" active-class="active">
-                <ArchiveBoxIcon class="nav-icon w-5 h-5" />
-                <span class="nav-text">Lots et Batches</span>
-              </router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/mouvement" class="nav-link" active-class="active">
-                <ArrowsUpDownIcon class="nav-icon w-5 h-5" />
-                <span class="nav-text">Mouvements</span>
-              </router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/operation" class="nav-link" active-class="active">
-                <ClipboardDocumentListIcon class="nav-icon w-5 h-5" />
-                <span class="nav-text">Opérations</span>
-              </router-link>
-            </li>
-          </ul>
-        </div>
-
-        <div class="nav-section" v-if="isGerant">
-          <h3 class="nav-section-title">Administration</h3>
-          <ul class="nav-list">
-            <li class="nav-item">
-              <router-link to="/utilisateur" class="nav-link" active-class="active">
-                <UserGroupIcon class="nav-icon w-5 h-5" />
-                <span class="nav-text">Utilisateurs</span>
-              </router-link>
-            </li>
-          </ul>
-        </div>
-
-        <div class="nav-section" v-if="isGerant">
-          <h3 class="nav-section-title">Rapports</h3>
-          <ul class="nav-list">
-            <li class="nav-item">
-              <router-link to="/analyse" class="nav-link" active-class="active">
-                <PresentationChartLineIcon class="nav-icon w-5 h-5" />
-                <span class="nav-text">Analyses</span>
-              </router-link>
-            </li>
-          </ul>
-        </div>
+        <ul class="nav-list nav-list-large">
+          <li class="nav-item">
+            <router-link to="/dashboard" class="nav-link" active-class="active">
+              <ChartBarSquareIcon class="nav-icon" />
+              <span class="nav-text">Tableau de bord</span>
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/boisson" class="nav-link" active-class="active">
+              <SparklesIcon class="nav-icon" />
+              <span class="nav-text">Boissons</span>
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/lot" class="nav-link" active-class="active">
+              <CubeIcon class="nav-icon" />
+              <span class="nav-text">Lots et Batches</span>
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/mouvement" class="nav-link" active-class="active">
+              <ArrowPathIcon class="nav-icon" />
+              <span class="nav-text">Mouvements</span>
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/operation" class="nav-link" active-class="active">
+              <DocumentTextIcon class="nav-icon" />
+              <span class="nav-text">Opérations</span>
+            </router-link>
+          </li>
+          <li class="nav-item" v-if="isGerant">
+            <router-link to="/utilisateur" class="nav-link" active-class="active">
+              <IdentificationIcon class="nav-icon" />
+              <span class="nav-text">Utilisateurs</span>
+            </router-link>
+          </li>
+          <li class="nav-item" v-if="isGerant">
+            <router-link to="/analyse" class="nav-link" active-class="active">
+              <ChartPieIcon class="nav-icon" />
+              <span class="nav-text">Analyses</span>
+            </router-link>
+          </li>
+        </ul>
       </nav>
     </div>
-
-    <!-- Sidebar Footer -->
     <div class="sidebar-footer">
       <div class="footer-content">
-        <div class="app-version">
-          <TagIcon class="w-4 h-4 version-icon" />
-          <span class="version-text">v1.0.5</span>
-        </div>
         <button class="logout-btn" @click="handleLogout">Déconnexion</button>
       </div>
     </div>
@@ -89,15 +61,13 @@ import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { UtilisateurService } from '../features/utilisateurs/services/utilisateurService'
 import {
-  HomeIcon,
   ChartBarSquareIcon,
-  BeakerIcon,
-  ArchiveBoxIcon,
-  ArrowsUpDownIcon,
-  UserGroupIcon,
-  PresentationChartLineIcon,
-  TagIcon,
-  ClipboardDocumentListIcon,
+  SparklesIcon,
+  CubeIcon,
+  ArrowPathIcon,
+  IdentificationIcon,
+  ChartPieIcon,
+  DocumentTextIcon,
 } from '@heroicons/vue/24/outline'
 
 interface Props {
@@ -117,7 +87,6 @@ const user = computed(() => UtilisateurService.getCurrentUser())
 const isAuthenticated = computed(() => UtilisateurService.isAuthenticated())
 const isGerant = computed(() => user.value?.role === 'GERANT')
 
-// Pages où le sidebar doit être masqué
 const hiddenSidebarRoutes = ['login', 'change-password']
 const shouldShowSidebar = computed(() => {
   return isAuthenticated.value && !hiddenSidebarRoutes.includes(route.name as string)
@@ -158,38 +127,6 @@ const shouldShowSidebar = computed(() => {
   gap: var(--space-8);
 }
 
-.nav-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.nav-section-title {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 0 var(--space-4);
-  margin-bottom: var(--space-2);
-  position: relative;
-}
-
-.nav-section-title::after {
-  content: '';
-  position: absolute;
-  bottom: var(--space-2);
-  left: var(--space-4);
-  right: var(--space-4);
-  height: 1px;
-  background: var(--color-border-light);
-}
-
-.collapsed .nav-section-title {
-  opacity: 0;
-  visibility: hidden;
-}
-
 .nav-list {
   display: flex;
   flex-direction: column;
@@ -208,25 +145,12 @@ const shouldShowSidebar = computed(() => {
   padding: var(--space-3) var(--space-4);
   color: var(--color-text-secondary);
   text-decoration: none;
-  font-size: var(--font-size-sm);
+  font-size: 1.18rem;
   font-weight: var(--font-weight-medium);
   transition: all var(--transition-fast);
   position: relative;
   border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
   margin-right: var(--space-2);
-}
-
-.nav-link::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--color-primary-500);
-  transform: scaleY(0);
-  transition: transform var(--transition-fast);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 
 .nav-link:hover {
@@ -239,10 +163,6 @@ const shouldShowSidebar = computed(() => {
   color: var(--color-primary-600);
   background: var(--color-primary-50);
   font-weight: var(--font-weight-semibold);
-}
-
-.nav-link.active::before {
-  transform: scaleY(1);
 }
 
 .nav-icon {
@@ -263,6 +183,7 @@ const shouldShowSidebar = computed(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   transition: all var(--transition-fast);
+  font-size: 1.18rem;
 }
 
 .collapsed .nav-text {
@@ -282,13 +203,6 @@ const shouldShowSidebar = computed(() => {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-}
-
-.app-version {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--color-text-muted);
 }
 
 .version-icon {
@@ -347,7 +261,6 @@ const shouldShowSidebar = computed(() => {
   background: #388e3c;
 }
 
-/* Mobile Responsive */
 @media (max-width: 768px) {
   .app-sidebar {
     transform: translateX(-100%);
@@ -363,7 +276,6 @@ const shouldShowSidebar = computed(() => {
   }
 }
 
-/* Scrollbar Styling */
 .sidebar-content::-webkit-scrollbar {
   width: 3px;
 }
@@ -381,7 +293,6 @@ const shouldShowSidebar = computed(() => {
   background: var(--color-border-dark);
 }
 
-/* Tooltip for collapsed state */
 .collapsed .nav-link {
   position: relative;
 }
