@@ -14,7 +14,7 @@ import { BoissonService } from "../features/boissons/services/boissonService.ts"
 import Modal from '../components/Modal.vue'
 import BoissonForm from '../components/forms/BoissonForm.vue'
 import { ElMessage } from 'element-plus';
-
+import { UtilisateurService } from '../features/utilisateurs/services/utilisateurService';
 
 
 const searchTerm = ref('');
@@ -30,7 +30,6 @@ const boisson = ref<Boisson | null>(null);
 const boissonService = new BoissonService();
 
 
-// Filtres disponibles
 const filters = [
   { value: 'all', label: 'Toutes les boissons' },
   { value: 'active', label: 'Actives uniquement' },
@@ -48,7 +47,6 @@ onMounted(async () => {
   }
 });
 
-// Boissons filtrées et triées
 const filteredBoissons = computed(() => {
   let filtered = boissons.value;
 
@@ -60,7 +58,6 @@ const filteredBoissons = computed(() => {
     );
   }
 
-  // Filtre par statut
   if (selectedFilter.value !== 'all') {
     filtered = filtered.filter(boisson => {
       switch (selectedFilter.value) {
@@ -99,7 +96,6 @@ const filteredBoissons = computed(() => {
   return filtered;
 });
 
-// Fonction de tri
 const handleSort = (column: string) => {
   if (sortBy.value === column) {
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
@@ -109,7 +105,6 @@ const handleSort = (column: string) => {
   }
 };
 
-// Formatage du prix
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('fr-FR', {
     style: 'currency',
@@ -117,12 +112,29 @@ const formatPrice = (price: number) => {
   }).format(price);
 };
 
-// Fonctions d'actions (à implémenter selon vos besoins)
 const handleDelete = (boisson: Boisson) => {
+  if (!isGerant.value) {
+    handleUnauthorizedAction();
+    return;
+  }
   console.log('Supprimer:', boisson);
 };
 
+const handleEdit = (boisson: Boisson) => {
+  if (!isGerant.value) {
+    handleUnauthorizedAction();
+    return;
+  }
+  selectedBoisson.value = { ...boisson };
+  modalTitle.value = 'Modifier la boisson';
+  showModal.value = true;
+};
+
 const handleToggleActive = async (boisson: Boisson) => {
+  if (!isGerant.value) {
+    handleUnauthorizedAction();
+    return;
+  }
   try {
     const updatedBoisson = await BoissonService.activateOrDeactivateBoisson(boisson.id, !boisson.isActive);
     const index = boissons.value.findIndex(b => b.id === boisson.id);
@@ -149,7 +161,6 @@ const closeModal = () => {
 
 const handleSubmit = async (boissonData: Boisson) => {
   if (selectedBoisson.value) {
-    // Update existing boisson
     try {
       console.log('Updating boisson:', boissonData);
       await BoissonService.updateBoisson(boissonData, selectedBoisson.value.id!);
@@ -161,7 +172,6 @@ const handleSubmit = async (boissonData: Boisson) => {
       console.error('Failed to update boisson:', error);
     }
   } else {
-    // Add new boisson
     try {
       const newBoisson = await BoissonService.addBoisson(boissonData);
       boissons.value.push(newBoisson);
@@ -172,12 +182,24 @@ const handleSubmit = async (boissonData: Boisson) => {
   closeModal();
 }
 
-// Nouvelle fonction pour gérer l'édition
-const handleEdit = (boisson: Boisson) => {
-  selectedBoisson.value = { ...boisson };
-  modalTitle.value = 'Modifier la boisson';
-  showModal.value = true;
+const currentUser = computed(() => UtilisateurService.getCurrentUser());
+const isGerant = computed(() => currentUser.value?.role === 'GERANT');
+
+const handleAddClick = () => {
+  if (!isGerant.value) {
+    ElMessage.warning("Vous n'avez pas le droit d'ajouter une boisson.");
+    return;
+  }
+  openModal();
 };
+
+const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effectuer cette opération.") => {
+  ElMessage.warning(message);
+};
+// Remplacer tous les endroits où une action non autorisée pourrait être tentée (ex: suppression, édition, etc.)
+// Par exemple, dans les handlers d'action :
+// if (!isGerant.value) { handleUnauthorizedAction(); return; }
+// ...
 </script>
 
 <template>
@@ -189,14 +211,12 @@ const handleEdit = (boisson: Boisson) => {
         <p class="table-subtitle">{{ filteredBoissons.length }} boisson(s) trouvée(s)</p>
       </div>
       <div class="header-actions">
-        <button class="btn btn-primary" @click="openModal()">
+        <button class="btn btn-primary" @click="handleAddClick" :disabled="!isGerant">
           <PlusIcon class="w-4 h-4" />
           Ajouter
         </button>
       </div>
     </div>
-
-    <!-- Barre de recherche et filtres -->
     <div class="filters-bar">
       <div class="search-container">
         <MagnifyingGlassIcon class="search-icon" />
