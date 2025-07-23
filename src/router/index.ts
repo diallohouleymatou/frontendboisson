@@ -135,7 +135,6 @@ router.beforeEach((to, from, next) => {
         // Vérifier les rôles si nécessaire
         if (to.meta.allowedRoles && currentUser) {
             if (!to.meta.allowedRoles.includes(currentUser.role)) {
-                // Rediriger vers la page d'accès refusé si le rôle n'est pas autorisé
                 return next({ name: 'acces-refuse' })
             }
         }
