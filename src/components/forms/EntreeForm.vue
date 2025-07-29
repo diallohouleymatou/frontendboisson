@@ -64,13 +64,19 @@
 
         <div class="form-row">
           <div class="form-group">
-            <label for="fournisseur">Fournisseur</label>
-            <input
+            <label for="fournisseur">Fournisseur*</label>
+            <select
               id="fournisseur"
               v-model="formData.lot.fournisseur"
-              type="text"
-              placeholder="Nom du fournisseur"
-            />
+              required
+              :class="{ 'error': errors.fournisseur }"
+            >
+              <option value="">Sélectionnez un fournisseur</option>
+              <option v-for="fournisseur in fournisseurs" :key="fournisseur.id || fournisseur.nom" :value="fournisseur.id || ''">
+                {{ fournisseur.nom }}
+              </option>
+            </select>
+            <span v-if="errors.fournisseur" class="error-message">{{ errors.fournisseur }}</span>
           </div>
         </div>
       </div>
@@ -120,6 +126,8 @@ import type { Boisson } from '../../features/boissons/models/boisson'
 import type { Utilisateur } from '../../features/utilisateurs/models/utilisateur'
 import { BoissonService } from '../../features/boissons/services/boissonService'
 import { UtilisateurService } from '../../features/utilisateurs/services/utilisateurService'
+import { FournisseurService } from '../../features/fournisseur/services/fournisseurService'
+import type {Fournisseur} from "../../features/fournisseur/models/fournisseur.ts";
 
 const props = defineProps<{
   isLoading?: boolean
@@ -149,14 +157,17 @@ const errors = ref<Record<string, string>>({})
 
 // Données de référence
 const boissons = ref<Boisson[]>([])
+const fournisseurs = ref<Fournisseur[]>([])
 
 // Chargement des données
 onMounted(async () => {
   try {
-    const [boissonsList] = await Promise.all([
-      BoissonService.getAllBoissons()
+    const [boissonsList, fournisseursList] = await Promise.all([
+      BoissonService.getAllBoissons(),
+      FournisseurService.getAllFournisseurs()
     ])
     boissons.value = boissonsList
+    fournisseurs.value = fournisseursList
 
     // Récupérer l'utilisateur courant depuis le localStorage
     const userStr = localStorage.getItem('user')
@@ -173,8 +184,7 @@ const isFormValid = computed(() => {
   return formData.value.lot.boisson &&
          formData.value.lot.numeroLot &&
          formData.value.lot.quantiteInitiale > 0 &&
-         formData.value.lot.dateEntree &&
-         formData.value.lot.datePeremption &&
+         formData.value.lot.fournisseur &&
          formData.value.utilisateur &&
          Object.keys(errors.value).length === 0
 })
@@ -194,26 +204,12 @@ const validateForm = () => {
     errors.value.quantiteInitiale = 'La quantité doit être supérieure à 0'
   }
 
-  if (!formData.value.lot.dateEntree) {
-    errors.value.dateEntree = 'La date d\'entrée est obligatoire'
-  }
-
-  if (!formData.value.lot.datePeremption) {
-    errors.value.datePeremption = 'La date de péremption est obligatoire'
+  if (!formData.value.lot.fournisseur) {
+    errors.value.fournisseur = 'Veuillez sélectionner un fournisseur'
   }
 
   if (!formData.value.utilisateur) {
     errors.value.utilisateur = 'Veuillez sélectionner un utilisateur'
-  }
-
-  // Validation de cohérence des dates
-  if (formData.value.lot.dateEntree && formData.value.lot.datePeremption) {
-    const dateEntree = new Date(formData.value.lot.dateEntree)
-    const datePeremption = new Date(formData.value.lot.datePeremption)
-
-    if (datePeremption <= dateEntree) {
-      errors.value.datePeremption = 'La date de péremption doit être postérieure à la date d\'entrée'
-    }
   }
 
   return Object.keys(errors.value).length === 0
@@ -238,8 +234,14 @@ const handleSubmit = () => {
   // Définir la quantité actuelle = quantité initiale pour une nouvelle entrée
   formData.value.lot.quantiteActuelle = formData.value.lot.quantiteInitiale
 
+  // Correction: envoyer fournisseur comme objet { id }
+  const lotToSend = {
+    ...formData.value.lot,
+    fournisseur: { id: formData.value.lot.fournisseur }
+  }
+
   emit('submit', {
-    lot: { ...formData.value.lot },
+    lot: lotToSend,
     utilisateur: formData.value.utilisateur!,
   })
 }
