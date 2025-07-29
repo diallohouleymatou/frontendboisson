@@ -24,6 +24,10 @@
             <span class="detail-value">{{ lot?.boisson?.nom }}</span>
           </div>
           <div class="detail-item">
+            <span class="detail-label">Fournisseur :</span>
+            <span class="detail-value">{{ lot?.fournisseur || 'Non renseigné' }}</span>
+          </div>
+          <div class="detail-item">
             <span class="detail-label">Format :</span>
             <span class="detail-value">{{ lot?.boisson?.format }} {{ lot?.boisson?.volume }}</span>
           </div>

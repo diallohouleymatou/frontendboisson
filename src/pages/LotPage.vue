@@ -267,6 +267,7 @@ const handleSubmit = (lotData: Lot) => {
                 { key: 'numero', label: 'Numéro' },
                 { key: 'boissonNom', label: 'Boisson' },
                 { key: 'quantite', label: 'Quantité' },
+                { key: 'fournisseur', label: 'Fournisseur' },
                 { key: 'datePeremption', label: 'Date de Péremption' },
               ]"
               :key="column.key"
@@ -294,6 +295,7 @@ const handleSubmit = (lotData: Lot) => {
           <td class="name-cell">{{ lot.numeroLot }}</td>
           <td class="name-cell">{{ lot.boisson.nom }}</td>
           <td class="name-cell">{{ lot.quantiteActuelle }}</td>
+          <td class="name-cell">{{ lot.fournisseur?.nom || 'Non renseigné' }}</td>
           <td class="date-cell">
             <span class="date-value">{{ formatDate(lot.datePeremption) }}</span>
           </td>
