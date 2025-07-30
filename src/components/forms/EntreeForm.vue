@@ -167,7 +167,7 @@ onMounted(async () => {
       FournisseurService.getAllFournisseurs()
     ])
     boissons.value = boissonsList
-    fournisseurs.value = fournisseursList
+    fournisseurs.value = fournisseursList.filter(f => f.estActif)
 
     // Récupérer l'utilisateur courant depuis le localStorage
     const userStr = localStorage.getItem('user')
