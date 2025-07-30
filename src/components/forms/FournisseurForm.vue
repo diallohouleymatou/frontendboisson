@@ -35,11 +35,14 @@ const isSubmitting = ref(false);
 const handleSubmit = async () => {
   isSubmitting.value = true;
   try {
-    const fournisseur = await FournisseurService.ajouterFournisseur(form.value);
+    console.log('Tentative de création fournisseur', form.value);
+    const fournisseur = await FournisseurService.addFournisseur(form.value);
+    console.log('Fournisseur créé', fournisseur);
     ElMessage.success('Fournisseur créé avec succès !');
     emit('submit', fournisseur);
     form.value = { nom: '', email: '', telephone: '', adresse: '' };
   } catch (e) {
+    console.error('Erreur lors de la création du fournisseur', e);
     ElMessage.error('Erreur lors de la création du fournisseur');
   } finally {
     isSubmitting.value = false;
@@ -102,4 +105,3 @@ const handleSubmit = async () => {
   color: #d32f2f;
 }
 </style>
-
