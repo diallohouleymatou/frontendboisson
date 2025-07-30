@@ -24,8 +24,9 @@ export class FournisseurService {
     return response.data;
   }
 
-  //static async activateOrDeactivateFournisseur(id, b: boolean) {
-
-
+  static async toggleFournisseurStatut(id: number) {
+    const response = await api.put<Fournisseur>(`${this.base_Url}/${id}/changer-statut`);
+    console.log('Réponse backend toggleFournisseurStatut:', response);
+    return response.data;
+  }
 }
-

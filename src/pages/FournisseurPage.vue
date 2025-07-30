@@ -37,13 +37,13 @@
           <td>{{ f.telephone }}</td>
           <td>{{ f.adresse }}</td>
           <td>
-            <span :class="['status-badge', f.isActive ? 'active' : 'inactive']">
-              {{ f.isActive ? 'Actif' : 'Inactif' }}
+            <span :class="['status-badge', f.estActif ? 'active' : 'inactive']">
+              {{ f.estActif ? 'Actif' : 'Inactif' }}
             </span>
           </td>
           <td v-if="isGerant">
             <button class="btn btn-icon btn-toggle" @click="handleToggleActive(f)">
-              {{ f.isActive ? 'Désactiver' : 'Activer' }}
+              {{ f.estActif ? 'Désactiver' : 'Activer' }}
             </button>
           </td>
         </tr>
@@ -87,10 +87,10 @@ const fetchFournisseurs = async () => {
 const handleToggleActive = async (f: any) => {
   if (!isGerant.value) return;
   try {
-    const updated = await FournisseurService.activateOrDeactivateFournisseur(f.id, !f.isActive);
+    const updated = await FournisseurService.toggleFournisseurStatut(f.id);
     const idx = fournisseurs.value.findIndex(x => x.id === f.id);
     if (idx !== -1) fournisseurs.value[idx] = updated;
-    ElMessage.success(`Fournisseur ${updated.isActive ? 'activé' : 'désactivé'} avec succès !`);
+    ElMessage.success(`Fournisseur ${updated.estActif ? 'activé' : 'désactivé'} avec succès !`);
   } catch (e) {
     ElMessage.error('Erreur lors du changement de statut');
   }

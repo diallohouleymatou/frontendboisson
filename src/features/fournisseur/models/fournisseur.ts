@@ -4,4 +4,5 @@ export interface Fournisseur {
     email: string;
     telephone: string;
     adresse: string;
+    estActif?: boolean;
 }
