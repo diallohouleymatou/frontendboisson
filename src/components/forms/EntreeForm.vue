@@ -138,7 +138,6 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-// État du formulaire
 const formData = ref<CreateLotRequest>({
   lot: {
     numeroLot: '',
@@ -155,11 +154,9 @@ const formData = ref<CreateLotRequest>({
 
 const errors = ref<Record<string, string>>({})
 
-// Données de référence
 const boissons = ref<Boisson[]>([])
 const fournisseurs = ref<Fournisseur[]>([])
 
-// Chargement des données
 onMounted(async () => {
   try {
     const [boissonsList, fournisseursList] = await Promise.all([
@@ -168,8 +165,6 @@ onMounted(async () => {
     ])
     boissons.value = boissonsList
     fournisseurs.value = fournisseursList.filter(f => f.estActif)
-
-    // Récupérer l'utilisateur courant depuis le localStorage
     const userStr = localStorage.getItem('user')
     if (userStr) {
       formData.value.utilisateur = JSON.parse(userStr)
@@ -179,7 +174,6 @@ onMounted(async () => {
   }
 })
 
-// Validation
 const isFormValid = computed(() => {
   return formData.value.lot.boisson &&
          formData.value.lot.numeroLot &&
@@ -215,9 +209,7 @@ const validateForm = () => {
   return Object.keys(errors.value).length === 0
 }
 
-// Gestionnaires d'événements
 const onBoissonChange = () => {
-  // Générer automatiquement un numéro de lot si vide
   if (!formData.value.lot.numeroLot && formData.value.lot.boisson) {
     const now = new Date()
     const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '')
@@ -231,10 +223,8 @@ const handleSubmit = () => {
     return
   }
 
-  // Définir la quantité actuelle = quantité initiale pour une nouvelle entrée
   formData.value.lot.quantiteActuelle = formData.value.lot.quantiteInitiale
 
-  // Correction: envoyer fournisseur comme objet { id }
   const lotToSend = {
     ...formData.value.lot,
     fournisseur: { id: formData.value.lot.fournisseur }
@@ -364,7 +354,6 @@ const handleSubmit = () => {
   margin-top: 0.25rem;
 }
 
-/* Résumé */
 .form-summary {
   background: #f0f9ff;
   border: 1px solid #0ea5e9;
@@ -406,7 +395,6 @@ const handleSubmit = () => {
   color: #059669;
 }
 
-/* Actions */
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -467,7 +455,6 @@ const handleSubmit = () => {
   }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .form-row {
     grid-template-columns: 1fr;
