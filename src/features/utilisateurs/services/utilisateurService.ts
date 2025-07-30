@@ -79,7 +79,6 @@ export class UtilisateurService {
         throw new Error('L\'ancien et le nouveau mot de passe sont requis')
       }
       await api.patch(`/utilisateurs/change-password?id=${id}`, passwordRequest)
-      // Mise à jour du statut firstLogin
       const user = this.getCurrentUser()
       if (user && user.isFirstLogin) {
         user.isFirstLogin = false

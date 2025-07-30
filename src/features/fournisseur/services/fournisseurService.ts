@@ -23,5 +23,9 @@ export class FournisseurService {
     const response = await api.get<Fournisseur>(`${this.base_Url}/${id}`);
     return response.data;
   }
+
+  //static async activateOrDeactivateFournisseur(id, b: boolean) {
+
+
 }
 

@@ -12,6 +12,7 @@ import { UtilisateurService } from "../features/utilisateurs/services/utilisateu
 import { Role } from "../features/utilisateurs/models/role";
 import Analyse from "../pages/Analyse.vue";
 import AccesRefuse from "../pages/AccesRefuse.vue";
+import FournisseurPage from "../pages/FournisseurPage.vue";
 
 const routes = [
     {
@@ -103,6 +104,15 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/fournisseur',
+        name: 'fournisseur',
+        component: FournisseurPage,
+        meta: {
+            requiresAuth: true,
+            allowedRoles: [Role.GERANT, Role.EMPLOYE]
+        }
+    },
+    {
         path: '/:pathMatch(.*)*',
         redirect: '/dashboard'
     }
@@ -127,11 +137,6 @@ router.beforeEach((to, from, next) => {
             return next({ name: 'login' })
         }
 
-        // Vérifier si c'est le premier login et rediriger vers changement de mot de passe
-        if (currentUser?.isFirstLogin && to.name !== 'change-password') {
-            return next({ name: 'change-password' })
-        }
-
         // Vérifier les rôles si nécessaire
         if (to.meta.allowedRoles && currentUser) {
             if (!to.meta.allowedRoles.includes(currentUser.role)) {
@@ -143,9 +148,6 @@ router.beforeEach((to, from, next) => {
 
     // Si l'utilisateur est authentifié et essaie d'accéder à la page de login
     if (isAuthenticated && to.name === 'login') {
-        if (currentUser?.isFirstLogin) {
-            return next({ name: 'change-password' })
-        }
         return next({ name: 'dashboard' })
     }
 

@@ -89,11 +89,13 @@ export default defineComponent({
     })
 
     const handleSubmit = async () => {
+      // Redirection directe au dashboard, changement de mot de passe désactivé
+      router.push('/dashboard')
+      return;
+      /*
       if (!isFormValid.value) return
-
       error.value = ''
       isSubmitting.value = true
-
       const user = UtilisateurService.getCurrentUser()
       const userId = user?.id
       if (!userId) {
@@ -101,14 +103,6 @@ export default defineComponent({
         isSubmitting.value = false
         return
       }
-
-      // Log des valeurs envoyées
-      console.log('Changement de mot de passe:', {
-        id: userId,
-        ancienMotDePasse: oldPassword.value,
-        nouveauMotDePasse: newPassword.value
-      })
-
       try {
         await UtilisateurService.changePassword(userId, {
           ancienMotDePasse: oldPassword.value,
@@ -125,6 +119,7 @@ export default defineComponent({
       } finally {
         isSubmitting.value = false
       }
+      */
     }
 
     return {

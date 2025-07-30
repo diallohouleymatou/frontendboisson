@@ -45,6 +45,12 @@
               <span class="nav-text">Analyses</span>
             </router-link>
           </li>
+          <li class="nav-item">
+            <router-link to="/fournisseur" class="nav-link" active-class="active">
+              <UserGroupIcon class="nav-icon" />
+              <span class="nav-text">Fournisseurs</span>
+            </router-link>
+          </li>
         </ul>
       </nav>
     </div>
@@ -68,6 +74,7 @@ import {
   IdentificationIcon,
   ChartPieIcon,
   DocumentTextIcon,
+  UserGroupIcon
 } from '@heroicons/vue/24/outline'
 
 interface Props {
