@@ -4,8 +4,6 @@ import {
   MagnifyingGlassIcon,
   FunnelIcon,
   PlusIcon,
-  PencilIcon,
-  TrashIcon,
   EyeIcon,
   EyeSlashIcon
 } from '@heroicons/vue/24/outline'
@@ -134,7 +132,7 @@ const handleToggleActive = async (boisson: Boisson) => {
     return;
   }
   try {
-    const updatedBoisson = await BoissonService.activateOrDeactivateBoisson(boisson.id, !boisson.isActive);
+    const updatedBoisson = await BoissonService.activateOrDeactivateBoisson(boisson.id);
     const index = boissons.value.findIndex(b => b.id === boisson.id);
     if (index !== -1) {
       boissons.value[index] = updatedBoisson;
@@ -254,18 +252,10 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
           <td>{{ formatPrice(boisson.prix) }}</td>
           <td>
             <span :class="['status-badge', boisson.isActive ? 'active' : 'inactive']">
-              <EyeIcon v-if="boisson.isActive" class="w-4 h-4 mr-1" />
-              <EyeSlashIcon v-else class="w-4 h-4 mr-1" />
               {{ boisson.isActive ? 'Active' : 'Inactive' }}
             </span>
           </td>
           <td>
-            <button class="btn btn-icon btn-edit" @click="handleEdit(boisson)" :disabled="!isGerant" title="Modifier">
-              <PencilIcon class="w-4 h-4" />
-            </button>
-            <button class="btn btn-icon btn-delete" @click="handleDelete(boisson)" :disabled="!isGerant" title="Supprimer">
-              <TrashIcon class="w-4 h-4" />
-            </button>
             <button class="btn btn-icon btn-toggle" @click="handleToggleActive(boisson)" :disabled="!isGerant" title="Activer/Désactiver">
               <EyeIcon v-if="!boisson.isActive" class="w-4 h-4" />
               <EyeSlashIcon v-else class="w-4 h-4" />
