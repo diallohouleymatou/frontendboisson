@@ -76,18 +76,12 @@
             <td>
               <div class="actions-group">
                 <button
-                  @click="openChangePasswordModal(utilisateur)"
-                  class="action-btn action-btn-password"
-                  title="Changer le mot de passe"
+                  @click="handleToggleActive(utilisateur)"
+                  class="action-btn action-btn-toggle"
+                  :title="utilisateur.isActive ? 'Désactiver' : 'Activer'"
                 >
-                  <KeyIcon class="w-4 h-4" />
-                </button>
-                <button
-                  @click="handleDeleteUser(utilisateur)"
-                  class="action-btn action-btn-delete"
-                  title="Supprimer"
-                >
-                  <TrashIcon class="w-4 h-4" />
+                  <span v-if="utilisateur.isActive">Désactiver</span>
+                  <span v-else>Activer</span>
                 </button>
               </div>
             </td>
@@ -321,6 +315,17 @@ const handleDeleteUser = async (utilisateur: Utilisateur) => {
     isLoading.value = false
   }
 }
+
+const handleToggleActive = async (utilisateur: Utilisateur) => {
+  try {
+    const updated = await UtilisateurService.updateStatus(utilisateur.id, !utilisateur.isActive);
+    console.log('Réponse backend updateStatus:', updated);
+    // Recharge la liste complète pour garantir la cohérence
+    utilisateurs.value = await UtilisateurService.getAllUtilisateurs();
+  } catch (e) {
+    // Optionally show error message
+  }
+};
 </script>
 
 <style scoped>
@@ -580,6 +585,15 @@ const handleDeleteUser = async (utilisateur: Utilisateur) => {
 
 .action-btn-delete:hover {
   background: var(--color-error-100);
+}
+
+.action-btn-toggle {
+  background: var(--color-info-50);
+  color: var(--color-info-700);
+}
+
+.action-btn-toggle:hover {
+  background: var(--color-info-100);
 }
 
 /* Loading and empty states */
