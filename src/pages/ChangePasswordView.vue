@@ -76,6 +76,10 @@ export default defineComponent({
     const confirmPassword = ref('')
     const error = ref('')
     const isSubmitting = ref(false)
+    if (localStorage.getItem('lastLoginPassword')) {
+      oldPassword.value = localStorage.getItem('lastLoginPassword') || ''
+      localStorage.removeItem('lastLoginPassword')
+    }
 
     const passwordMismatch = computed(() => {
       return newPassword.value && confirmPassword.value && newPassword.value !== confirmPassword.value
@@ -89,37 +93,54 @@ export default defineComponent({
     })
 
     const handleSubmit = async () => {
-      // Redirection directe au dashboard, changement de mot de passe désactivé
-      router.push('/dashboard')
-      return;
-      /*
-      if (!isFormValid.value) return
       error.value = ''
+      console.log('[ChangePassword] Début handleSubmit')
+      if (!isFormValid.value) {
+        console.log('[ChangePassword] Formulaire invalide', {
+          oldPassword: oldPassword.value,
+          newPassword: newPassword.value,
+          confirmPassword: confirmPassword.value
+        })
+        return
+      }
       isSubmitting.value = true
       const user = UtilisateurService.getCurrentUser()
       const userId = user?.id
+      console.log('[ChangePassword] Utilisateur courant', user)
       if (!userId) {
         error.value = "Utilisateur non connecté"
         isSubmitting.value = false
+        console.log('[ChangePassword] Utilisateur non connecté')
         return
       }
       try {
+        console.log('[ChangePassword] Tentative de changement de mot de passe', {
+          userId,
+          ancienMotDePasse: oldPassword.value,
+          nouveauMotDePasse: newPassword.value
+        })
+        console.log('[ChangePassword] Appel UtilisateurService.changePassword...')
         await UtilisateurService.changePassword(userId, {
           ancienMotDePasse: oldPassword.value,
           nouveauMotDePasse: newPassword.value
         })
+        console.log('[ChangePassword] Retour de UtilisateurService.changePassword')
+        console.log('[ChangePassword] Changement de mot de passe réussi')
         router.push('/dashboard')
       } catch (e: any) {
+        console.log('[ChangePassword] Erreur attrapée lors du changement de mot de passe', e)
         if (e.response && e.response.data && e.response.data.message) {
           error.value = e.response.data.message
+          console.log('[ChangePassword] Message d\'erreur API:', e.response.data.message)
         } else {
           error.value = e.message || 'Une erreur est survenue lors du changement de mot de passe'
+          console.log('[ChangePassword] Message d\'erreur JS:', e.message)
         }
-        console.error('Erreur changement mot de passe:', e)
+        console.error('[ChangePassword] Erreur changement mot de passe:', e)
       } finally {
         isSubmitting.value = false
+        console.log('[ChangePassword] Fin handleSubmit')
       }
-      */
     }
 
     return {
