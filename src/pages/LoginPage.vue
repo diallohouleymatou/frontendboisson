@@ -231,6 +231,8 @@ export default defineComponent({
         if (response.utilisateur.firstLogin) {
           isFirstLogin.value = true
           passwordForm.ancienMotDePasse = loginForm.motDePasse
+          // Stocker le mot de passe pour préremplissage sur la page de changement
+          localStorage.setItem('lastLoginPassword', loginForm.motDePasse)
         } else {
           router.push('/dashboard')
         }
@@ -248,7 +250,12 @@ export default defineComponent({
       error.value = ''
 
       try {
-        await UtilisateurService.changePassword(passwordForm)
+        const user = UtilisateurService.getCurrentUser()
+        const userId = user?.id
+        await UtilisateurService.changePassword(userId, {
+          ancienMotDePasse: passwordForm.ancienMotDePasse,
+          nouveauMotDePasse: passwordForm.nouveauMotDePasse
+        })
         router.push('/dashboard')
       } catch (err: any) {
         error.value = err.message || 'Une erreur est survenue lors du changement de mot de passe'

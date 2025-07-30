@@ -44,7 +44,7 @@ export class UtilisateurService {
 
       // Store the token for future requests
       localStorage.setItem('token', token)
-      // localStorage.setItem('isFirstLogin', JSON.stringify(response.data.utilisateur.isFirstLogin))
+      localStorage.setItem('isFirstLogin', JSON.stringify(response.data.utilisateur.isFirstLogin))
       localStorage.setItem('user', JSON.stringify(utilisateur))
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
@@ -72,6 +72,7 @@ export class UtilisateurService {
 
   static async changePassword(id: number, passwordRequest: PasswordRequest): Promise<void> {
     try {
+      console.log('[UtilisateurService] changePassword called', { id, passwordRequest })
       if (!id) {
         throw new Error('Utilisateur non connecté')
       }
@@ -79,12 +80,14 @@ export class UtilisateurService {
         throw new Error('L\'ancien et le nouveau mot de passe sont requis')
       }
       await api.patch(`/utilisateurs/change-password?id=${id}`, passwordRequest)
+      console.log('[UtilisateurService] api.patch envoyé')
       const user = this.getCurrentUser()
       if (user && user.isFirstLogin) {
         user.isFirstLogin = false
         localStorage.setItem('user', JSON.stringify(user))
       }
     } catch (error: any) {
+      console.log('[UtilisateurService] Erreur dans changePassword', error)
       if (error.response?.status === 400) {
         throw new Error('Ancien mot de passe incorrect')
       }
