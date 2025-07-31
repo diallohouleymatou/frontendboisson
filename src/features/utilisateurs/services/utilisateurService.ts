@@ -96,13 +96,9 @@ export class UtilisateurService {
     }
   }
 
-  static async updateStatus(id: number, isActive: boolean): Promise<Utilisateur> {
-    try {
-      const response = await api.patch(`/utilisateurs/${id}/status`, { isActive })
-      return response.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Erreur lors de la mise à jour du statut')
-    }
+  static async toggleUtilisateurStatut(id: number, active: boolean): Promise<Utilisateur> {
+    const response = await api.put<Utilisateur>(`/utilisateurs/status/${id}`, { active });
+    return response.data;
   }
 
   static getCurrentUser(): Utilisateur | null {

@@ -199,6 +199,9 @@ const filteredUtilisateurs = computed(() => {
   return filtered
 })
 
+const currentUser = computed(() => UtilisateurService.getCurrentUser());
+const isGerant = computed(() => currentUser.value?.role === 'GERANT');
+
 // Methods
 const formatDate = (date: string | Date | undefined) => {
   if (!date) return 'N/A'
@@ -309,13 +312,15 @@ const handleDeleteUser = async (utilisateur: Utilisateur) => {
 }
 
 const handleToggleActive = async (utilisateur: Utilisateur) => {
+  if (!isGerant.value) return;
   try {
-    const updated = await UtilisateurService.updateStatus(utilisateur.id, !utilisateur.isActive);
-    console.log('Réponse backend updateStatus:', updated);
-    // Recharge la liste complète pour garantir la cohérence
+    isLoading.value = true;
+    await UtilisateurService.toggleUtilisateurStatut(utilisateur.id, !utilisateur.isActive);
     utilisateurs.value = await UtilisateurService.getAllUtilisateurs();
   } catch (e) {
     // Optionally show error message
+  } finally {
+    isLoading.value = false;
   }
 };
 </script>
