@@ -5,49 +5,41 @@
         <ul class="nav-list">
           <li class="nav-item">
             <router-link to="/dashboard" class="nav-link" active-class="active">
-              <ChartBarSquareIcon class="nav-icon" />
               <span class="nav-text">Tableau de bord</span>
             </router-link>
           </li>
           <li class="nav-item">
             <router-link to="/boisson" class="nav-link" active-class="active">
-              <SparklesIcon class="nav-icon" />
               <span class="nav-text">Boissons</span>
             </router-link>
           </li>
           <li class="nav-item">
             <router-link to="/lot" class="nav-link" active-class="active">
-              <CubeIcon class="nav-icon" />
               <span class="nav-text">Lots</span>
             </router-link>
           </li>
           <li class="nav-item">
             <router-link to="/mouvement" class="nav-link" active-class="active">
-              <ArrowPathIcon class="nav-icon" />
               <span class="nav-text">Mouvements</span>
             </router-link>
           </li>
           <li class="nav-item">
             <router-link to="/operation" class="nav-link" active-class="active">
-              <DocumentTextIcon class="nav-icon" />
               <span class="nav-text">Opérations</span>
             </router-link>
           </li>
           <li class="nav-item" v-if="isGerant">
             <router-link to="/utilisateur" class="nav-link" active-class="active">
-              <IdentificationIcon class="nav-icon" />
               <span class="nav-text">Utilisateurs</span>
             </router-link>
           </li>
           <li class="nav-item" v-if="isGerant">
             <router-link to="/analyse" class="nav-link" active-class="active">
-              <ChartPieIcon class="nav-icon" />
               <span class="nav-text">Analyses</span>
             </router-link>
           </li>
           <li class="nav-item">
             <router-link to="/fournisseur" class="nav-link" active-class="active">
-              <UserGroupIcon class="nav-icon" />
               <span class="nav-text">Fournisseurs</span>
             </router-link>
           </li>
@@ -64,16 +56,6 @@
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { UtilisateurService } from '../features/utilisateurs/services/utilisateurService'
-import {
-  ChartBarSquareIcon,
-  SparklesIcon,
-  CubeIcon,
-  ArrowPathIcon,
-  IdentificationIcon,
-  ChartPieIcon,
-  DocumentTextIcon,
-  UserGroupIcon
-} from '@heroicons/vue/24/outline'
 
 interface Props {
   isCollapsed: boolean

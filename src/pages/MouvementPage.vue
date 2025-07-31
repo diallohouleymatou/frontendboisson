@@ -1,6 +1,5 @@
 <template>
   <div class="mouvement-page">
-    <!-- En-tête avec actions -->
     <div class="table-header">
       <div class="header-left">
         <h2 class="table-title">Gestion des Mouvements de Stock</h2>
@@ -11,7 +10,7 @@
           <select v-model="selectedType" class="dropdown-select">
             <option disabled value="">Sélectionner un type de mouvement</option>
             <option value="ENTREE">Entrée de stock</option>
-            <option value="ENTREE_BATCH">Entrée par lot</option>
+            <option value="ENTREE_LOT">Entrée par lot a implementer</option>
             <option value="SORTIE">Sortie de stock</option>
             <option value="AJUSTEMENT">Ajustement</option>
           </select>
@@ -21,8 +20,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Barre de recherche et filtres -->
     <div class="filters-bar">
       <div class="search-container">
         <MagnifyingGlassIcon class="search-icon" />
@@ -42,7 +39,6 @@
           </option>
         </select>
       </div>
-
       <div class="stats-container">
         <div class="stat-item">
           <span class="stat-label">Total mouvements :</span>
@@ -50,8 +46,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Tableau des mouvements -->
     <div class="table-wrapper">
       <div v-if="isLoading" class="loading-state">
         <div class="loading-spinner"></div>
@@ -88,7 +82,6 @@
             <th>Utilisateur</th>
             <th>Raison / Motif</th>
             <th>Type d'ajustement</th>
-            <!-- Suppression de la colonne Actions -->
           </tr>
         </thead>
         <tbody>
@@ -128,7 +121,6 @@
               </span>
               <span v-else class="text-muted">-</span>
             </td>
-            <!-- Suppression de la cellule Actions -->
           </tr>
         </tbody>
       </table>
