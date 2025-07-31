@@ -22,7 +22,7 @@
     </div>
 
     <div class="form-group">
-      <label for="prix">Prix (€)*</label>
+      <label for="prix">Prix (FCFA)*</label>
       <input
         id="prix"
         v-model.number="formData.prix"
@@ -109,8 +109,7 @@ const formData = ref({
   prix: 0,
   volume: 0,
   unite: 'ml',
-  seuil: 0,
-  isActive: true
+  seuil: 0
 })
 
 const errors = ref({
@@ -123,20 +122,17 @@ const errors = ref({
 
 const isSubmitting = ref(false)
 
-// Initialize form with existing data if editing
 watch(() => props.boisson, (newBoisson) => {
   if (newBoisson) {
     formData.value = { ...newBoisson }
   } else {
-    // Reset form for new boisson
     formData.value = {
       nom: '',
       description: '',
       prix: 0,
       volume: 0,
       unite: 'ml',
-      seuil: 0,
-      isActive: true
+      seuil: 0
     }
   }
 }, { immediate: true })
@@ -185,7 +181,6 @@ const validateForm = () => {
 
 const handleSubmit = async () => {
   if (!validateForm()) return
-
   isSubmitting.value = true
   try {
     emit('submit', formData.value)
@@ -198,102 +193,19 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-.boisson-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-4);
-}
-
-.boisson-form input,
-.boisson-form textarea,
-.boisson-form select {
-  background: #fff;
-  color: #222;
-  border: 1.5px solid #b0b8c1;
-  border-radius: 7px;
-  padding: 10px 12px;
-  font-size: 1rem;
-  margin-bottom: 10px;
-  box-shadow: 0 1px 4px rgba(66,133,244,0.06);
-  transition: border 0.18s, box-shadow 0.18s;
-}
-
-.boisson-form input:focus,
-.boisson-form textarea:focus,
-.boisson-form select:focus {
-  border-color: #4285f4;
-  outline: none;
-  box-shadow: 0 0 0 2px #e3f0ff;
-}
-
-.boisson-form label {
-  font-weight: 600;
-  color: #4285f4;
-  margin-bottom: 4px;
-  display: block;
-}
-
-.boisson-form .form-group {
-  margin-bottom: 18px;
-}
-
-.boisson-form .error-message {
+.error-message {
   color: #ea4335;
   font-size: 0.95em;
   margin-top: 2px;
   display: block;
 }
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  border: none;
-  border-radius: var(--radius-md);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: all var(--transition-base);
-}
-
-.btn-primary {
-  background: var(--color-primary-500);
-  color: white;
-}
-
-.btn-primary:hover {
-  background: var(--color-primary-600);
-}
-
-.btn-primary:disabled {
-  background: var(--color-primary-300);
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: var(--color-bg-secondary);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border-medium);
-}
-
-.btn-secondary:hover {
-  background: var(--color-bg-tertiary);
-}
-
 .spinner {
   display: inline-block;
   width: 16px;
   height: 16px;
-  border: 2px solid var(--color-bg-primary);
-  border-top: 2px solid transparent;
+  border: 2px solid #f2f2f2;
+  border-top: 2px solid #4285f4;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
