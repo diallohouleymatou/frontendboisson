@@ -18,7 +18,7 @@
           <li class="nav-item">
             <router-link to="/lot" class="nav-link" active-class="active">
               <CubeIcon class="nav-icon" />
-              <span class="nav-text">Lots et Batches</span>
+              <span class="nav-text">Lots</span>
             </router-link>
           </li>
           <li class="nav-item">
