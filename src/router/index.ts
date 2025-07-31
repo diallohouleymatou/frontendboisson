@@ -124,11 +124,17 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    // Initialiser l'authentification
     UtilisateurService.initializeAuth()
-
     const isAuthenticated = UtilisateurService.isAuthenticated()
     const currentUser = UtilisateurService.getCurrentUser()
+
+    // Gestion du changement de mot de passe à la première connexion
+    if (isAuthenticated && currentUser?.isFirstLogin && to.name !== 'change-password') {
+        return next({ name: 'change-password' })
+    }
+    if (isAuthenticated && !currentUser?.isFirstLogin && to.name === 'change-password') {
+        return next({ name: 'dashboard' })
+    }
 
     // Si la route nécessite une authentification
     if (to.meta.requiresAuth) {
@@ -136,8 +142,6 @@ router.beforeEach((to, from, next) => {
             // Rediriger vers login si non authentifié
             return next({ name: 'login' })
         }
-
-        // Vérifier les rôles si nécessaire
         if (to.meta.allowedRoles && currentUser) {
             if (!to.meta.allowedRoles.includes(currentUser.role)) {
                 return next({ name: 'acces-refuse' })

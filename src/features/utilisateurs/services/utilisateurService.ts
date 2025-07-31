@@ -8,13 +8,15 @@ export class UtilisateurService {
   static async getAllUtilisateurs(): Promise<Utilisateur[]> {
     try {
       const response = await api.get('/utilisateurs')
-      return response.data
+      return response.data.map((u: any) => ({
+        ...u,
+        isActive: u.active
+      }))
     } catch (error: any) {
       console.error('Erreur lors de la récupération des utilisateurs:', error)
       throw new Error(error.response?.data?.message || 'Erreur lors de la récupération des utilisateurs')
     }
   }
-
   static async createUtilisateur(utilisateur: Partial<Utilisateur>): Promise<Utilisateur> {
     try {
       if (!utilisateur.email || !utilisateur.firstName || !utilisateur.lastName || !utilisateur.role) {
@@ -70,14 +72,15 @@ export class UtilisateurService {
 
   static async changePassword(id: number, passwordRequest: PasswordRequest): Promise<void> {
     try {
-      console.log('[UtilisateurService] changePassword called', { id, passwordRequest })
+
       if (!id) {
         throw new Error('Utilisateur non connecté')
       }
       if (!passwordRequest.ancienMotDePasse || !passwordRequest.nouveauMotDePasse) {
         throw new Error('L\'ancien et le nouveau mot de passe sont requis')
       }
-      await api.patch(`/utilisateurs/change-password?id=${id}`, passwordRequest)
+      console.log('[UtilisateurService] changePassword called', { id, passwordRequest })
+      await api.patch(`/utilisateurs/change-password/${id}`, passwordRequest)
       console.log('[UtilisateurService] api.patch envoyé')
       const user = this.getCurrentUser()
       if (user && user.isFirstLogin) {

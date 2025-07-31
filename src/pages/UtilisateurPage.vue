@@ -49,19 +49,13 @@
       <table v-else class="modern-table">
         <thead>
           <tr>
-            <th
-              v-for="column in columns"
-              :key="column.key"
-              @click="handleSort(column.key)"
-              class="sortable-header"
-              :class="{ 'sorted': sortBy === column.key }"
-            >
+            <th v-for="column in columns" :key="column.key" @click="handleSort(column.key)" class="sortable-header" :class="{ 'sorted': sortBy === column.key }">
               {{ column.label }}
               <span class="sort-indicator" v-if="sortBy === column.key">
                 {{ sortOrder === 'asc' ? '↑' : '↓' }}
               </span>
             </th>
-            <th class="actions-header">Actions</th>
+            <th>Statut</th>
           </tr>
         </thead>
         <tbody>
@@ -74,16 +68,14 @@
             </td>
             <td>{{ formatDate(utilisateur.createdAt) }}</td>
             <td>
-              <div class="actions-group">
-                <button
-                  @click="handleToggleActive(utilisateur)"
-                  class="action-btn action-btn-toggle"
-                  :title="utilisateur.isActive ? 'Désactiver' : 'Activer'"
-                >
-                  <span v-if="utilisateur.isActive">Désactiver</span>
-                  <span v-else>Activer</span>
-                </button>
-              </div>
+              <span :class="['status-badge', utilisateur.isActive ? 'active' : 'inactive']">
+                {{ utilisateur.isActive ? 'Actif' : 'Inactif' }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-icon btn-toggle" @click="handleToggleActive(utilisateur)" :title="utilisateur.isActive ? 'Désactiver' : 'Activer'">
+                {{ utilisateur.isActive ? 'Désactiver' : 'Activer' }}
+              </button>
             </td>
           </tr>
         </tbody>
