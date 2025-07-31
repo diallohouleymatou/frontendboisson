@@ -275,7 +275,6 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
     </transition>
   </div>
 </template>
-
 <style scoped>
 .boisson-page {
   padding: 20px;
