@@ -14,10 +14,31 @@ import Modal from '../components/Modal.vue'
 import LotForm from '../components/forms/LotForm.vue'
 
 // Mock data for boissons (will be replaced with API call)
+// Mock data for boissons (will be replaced with API call)
 const boissons = ref([
   { id: 1, nom: 'Coca-Cola' },
   { id: 2, nom: 'Fanta' }
 ])
+// const lots = ref<Lot[]>([
+//   {
+//     id: 1,
+//     numeroLot: 'LOT001',
+//     boisson: { id: 1, nom: 'Coca-Cola' },
+//     quantiteInitiale: 100,
+//     quantiteActuelle: 75,
+//     dateEntree: new Date('2025-07-01'),
+//     datePeremption: new Date('2025-12-31')
+//   },
+//   {
+//     id: 2,
+//     numeroLot: 'LOT002',
+//     boisson: { id: 2, nom: 'Fanta' },
+//     quantiteInitiale: 150,
+//     quantiteActuelle: 150,
+//     dateEntree: new Date('2025-07-13'),
+//     datePeremption: new Date('2025-08-13')
+//   }
+// ])
 
 // const lots = ref<Lot[]>([
 //   {
@@ -41,6 +62,7 @@ const boissons = ref([
 // ])
 const lots = ref<Lot[]>([])
 
+// Chargement des données
 const showModal = ref(false)
 const modalTitle = ref('')
 const selectedLot = ref<Lot | null>(null)
@@ -57,15 +79,18 @@ const closeModal = () => {
 }
 
 const editLot = (lot: Lot) => {
+// Filtres disponibles
   selectedLot.value = { ...lot }
   modalTitle.value = 'Modifier le lot'
   showModal.value = true
 }
 
 // Chargement des données
+// Lots filtrés et triés
 onMounted(async () => {
   try {
     lots.value = await inventaireService.getAllLots();
+  // Filtre par recherche
   } catch (error) {
     console.error('Erreur lors du chargement des lots:', error);
   } finally {
@@ -73,6 +98,7 @@ onMounted(async () => {
   }
 });
 
+  // Filtre par statut
 const isLoading = ref(true);
 const searchTerm = ref('');
 const selectedFilter = ref('all');
@@ -87,6 +113,7 @@ const filters = [
 ];
 
 // Lots filtrés et triés
+  // Tri
 const filteredLots = computed(() => {
   let filtered = lots.value;
 
@@ -109,6 +136,7 @@ const filteredLots = computed(() => {
           return lot.datePeremption <= today;
         default:
           return true;
+// Fonction de tri
       }
     });
   }
@@ -118,6 +146,7 @@ const filteredLots = computed(() => {
     const aValue = a[sortBy.value as keyof Lot];
     const bValue = b[sortBy.value as keyof Lot];
 
+// Formatage de la date
     if (typeof aValue === 'string' && typeof bValue === 'string') {
       return sortOrder.value === 'asc'
           ? aValue.localeCompare(bValue)
@@ -127,6 +156,7 @@ const filteredLots = computed(() => {
     if (typeof aValue === 'number' && typeof bValue === 'number') {
       return sortOrder.value === 'asc'
           ? aValue - bValue
+// Vérifie si la date est proche de l'expiration
           : bValue - aValue;
     }
 
@@ -134,6 +164,7 @@ const filteredLots = computed(() => {
   });
 
   return filtered;
+// Récupère le statut d'un lot
 });
 
 // Fonction de tri
@@ -147,6 +178,7 @@ const handleSort = (column: string) => {
 };
 
 // Formatage de la date
+// Récupère la classe CSS du statut d'un lot
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return new Intl.DateTimeFormat('fr-FR', {
@@ -157,13 +189,16 @@ const formatDate = (dateString: string) => {
 };
 
 // Vérifie si la date est proche de l'expiration
+// Soumet le formulaire (ajout ou modification d'un lot)
 const isNearExpiration = (date: Date) => {
   const today = new Date()
+    // Met à jour un lot existant
   const expirationDate = new Date(date)
   const thirtyDays = 30 * 24 * 60 * 60 * 1000
   return expirationDate.getTime() - today.getTime() <= thirtyDays
 }
 
+    // Ajoute un nouveau lot
 // Récupère le statut d'un lot
 const getLotStatus = (lot: Lot) => {
   if (new Date(lot.datePeremption) < new Date()) {

@@ -4,8 +4,11 @@ export class BoissonService {
     private static readonly base_Url='/boissons';
     static async getAllBoissons():Promise<Boisson[]>{
         const response=await api.get<Boisson[]>(this.base_Url);
-        console.log(response.data);
-        return response.data;
+        // Map 'active' to 'isActive' for compatibility with the frontend
+        return response.data.map((b: any) => ({
+            ...b,
+            isActive: b.active
+        }));
     }
     static async addBoisson(boisson:Boisson){
       const response = await api.post<Boisson>(this.base_Url,boisson);

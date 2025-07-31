@@ -256,9 +256,8 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
             </span>
           </td>
           <td>
-            <button class="btn btn-icon btn-toggle" @click="handleToggleActive(boisson)" :disabled="!isGerant" title="Activer/Désactiver">
-              <EyeIcon v-if="!boisson.isActive" class="w-4 h-4" />
-              <EyeSlashIcon v-else class="w-4 h-4" />
+            <button class="btn btn-icon btn-toggle" @click="handleToggleActive(boisson)" :disabled="!isGerant" :title="boisson.isActive ? 'Désactiver' : 'Activer'">
+              {{ boisson.isActive ? 'Désactiver' : 'Activer' }}
             </button>
           </td>
         </tr>
