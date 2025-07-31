@@ -205,51 +205,44 @@ const handleSubmit = async () => {
   padding: var(--space-4);
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+.boisson-form input,
+.boisson-form textarea,
+.boisson-form select {
+  background: #fff;
+  color: #222;
+  border: 1.5px solid #b0b8c1;
+  border-radius: 7px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(66,133,244,0.06);
+  transition: border 0.18s, box-shadow 0.18s;
 }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: var(--space-4);
-}
-
-label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
-}
-
-input,
-textarea,
-select {
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border-medium);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-base);
-  transition: all var(--transition-base);
-}
-
-input:focus,
-textarea:focus,
-select:focus {
+.boisson-form input:focus,
+.boisson-form textarea:focus,
+.boisson-form select:focus {
+  border-color: #4285f4;
   outline: none;
-  border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 3px var(--color-primary-500)1a;
+  box-shadow: 0 0 0 2px #e3f0ff;
 }
 
-input.error,
-textarea.error,
-select.error {
-  border-color: var(--color-error-500);
+.boisson-form label {
+  font-weight: 600;
+  color: #4285f4;
+  margin-bottom: 4px;
+  display: block;
 }
 
-.error-message {
-  font-size: var(--font-size-xs);
-  color: var(--color-error-500);
+.boisson-form .form-group {
+  margin-bottom: 18px;
+}
+
+.boisson-form .error-message {
+  color: #ea4335;
+  font-size: 0.95em;
+  margin-top: 2px;
+  display: block;
 }
 
 .form-actions {

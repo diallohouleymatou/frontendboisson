@@ -39,6 +39,11 @@ input, select, textarea {
   margin-top: 5px;
   margin-bottom: 15px;
   border: 1px solid #ccc;
+  background: #fff;
+  color: #222;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
 }
 
 label {

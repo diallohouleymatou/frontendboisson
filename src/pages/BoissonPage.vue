@@ -4,8 +4,6 @@ import {
   MagnifyingGlassIcon,
   FunnelIcon,
   PlusIcon,
-  EyeIcon,
-  EyeSlashIcon
 } from '@heroicons/vue/24/outline'
 import type { Boisson } from "../features/boissons/models/boisson.ts";
 import { BoissonService } from "../features/boissons/services/boissonService.ts";
@@ -276,8 +274,7 @@ const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effec
         </tbody>
       </table>
     </div>
-    <Modal v-if="showModal" @close="closeModal">
-      <template #title>{{ modalTitle }}</template>
+    <Modal :model-value="showModal" :title="modalTitle" @update:modelValue="showModal = $event">
       <BoissonForm :boisson="selectedBoisson" @submit="handleSubmit" @cancel="closeModal" />
     </Modal>
   </div>
