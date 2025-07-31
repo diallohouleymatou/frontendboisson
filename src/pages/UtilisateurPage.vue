@@ -69,7 +69,6 @@
               >
                 {{ utilisateur.isActive ? 'Désactiver' : 'Activer' }}
               </button>
-              <button class="btn btn-primary" @click="editUtilisateur(utilisateur)">Modifier</button>
             </td>
           </tr>
         </tbody>
@@ -87,24 +86,13 @@ import {
   MagnifyingGlassIcon,
   FunnelIcon,
   PlusIcon,
-  TrashIcon,
-  KeyIcon
 } from '@heroicons/vue/24/outline'
 import Modal from '../components/Modal.vue'
 import UtilisateurForm from '../components/forms/UtilisateurForm.vue'
-import PasswordForm from '../components/forms/PasswordForm.vue'
 import { UtilisateurService } from '../features/utilisateurs/services/utilisateurService'
 import type { Utilisateur } from '../features/utilisateurs/models/utilisateur'
-import type { Role } from '../features/utilisateurs/models/role'
 
-const utilisateurs = ref<Utilisateur[]>([
-])
-
-const columns = [
-  { key: 'email', label: 'Email' },
-  { key: 'role', label: 'Rôle' },
-  { key: 'createdAt', label: 'Date de création' }
-]
+const utilisateurs = ref<Utilisateur[]>([])
 
 const filters = [
   { value: 'all', label: 'Tous les rôles' },
@@ -113,18 +101,15 @@ const filters = [
   { value: 'LIVREUR', label: 'Livreurs' }
 ]
 
-// State
 const isLoading = ref(false)
 const searchTerm = ref('')
 const selectedFilter = ref('all')
 const sortBy = ref('email')
 const sortOrder = ref<'asc' | 'desc'>('asc')
 const showModal = ref(false)
-const showPasswordModal = ref(false)
 const modalTitle = ref('Nouvel utilisateur')
 const selectedUtilisateur = ref<Utilisateur | null>(null)
 
-// Load initial data
 onMounted(async () => {
   try {
     isLoading.value = true
@@ -137,93 +122,34 @@ onMounted(async () => {
   }
 })
 
-// Computed
 const filteredUtilisateurs = computed(() => {
   let filtered = utilisateurs.value
-
-  // Filter by search term
   if (searchTerm.value) {
     const search = searchTerm.value.toLowerCase()
     filtered = filtered.filter(user =>
       user.email.toLowerCase().includes(search)
     )
   }
-
-  // Filter by role
   if (selectedFilter.value !== 'all') {
     filtered = filtered.filter(user => user.role === selectedFilter.value)
   }
-
-  // Sort
   filtered.sort((a, b) => {
     const aValue = a[sortBy.value as keyof Utilisateur]
     const bValue = b[sortBy.value as keyof Utilisateur]
-
-    if (sortBy.value === 'createdAt') {
-      return sortOrder.value === 'asc'
-        ? new Date(aValue as Date).getTime() - new Date(bValue as Date).getTime()
-        : new Date(bValue as Date).getTime() - new Date(aValue as Date).getTime()
-    }
-
     if (typeof aValue === 'string' && typeof bValue === 'string') {
       return sortOrder.value === 'asc'
         ? aValue.localeCompare(bValue)
         : bValue.localeCompare(aValue)
     }
-
     return 0
   })
-
   return filtered
 })
 
 const currentUser = computed(() => UtilisateurService.getCurrentUser());
 const isGerant = computed(() => currentUser.value?.role === 'GERANT');
 
-// Methods
-const formatDate = (date: string | Date | undefined) => {
-  if (!date) return 'N/A'
-  return new Date(date).toLocaleDateString('fr-FR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  })
-}
 
-const getRoleLabel = (role: Role) => {
-  switch (role) {
-    case 'GERANT':
-      return 'Gérant'
-    case 'EMPLOYE':
-      return 'Employé'
-    case 'LIVREUR':
-      return 'Livreur'
-    default:
-      return role
-  }
-}
-
-const getRoleBadgeClass = (role: Role) => {
-  switch (role) {
-    case 'GERANT':
-      return 'role-gerant'
-    case 'EMPLOYE':
-      return 'role-employe'
-    case 'LIVREUR':
-      return 'role-livreur'
-    default:
-      return ''
-  }
-}
-
-const handleSort = (column: string) => {
-  if (sortBy.value === column) {
-    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
-  } else {
-    sortBy.value = column
-    sortOrder.value = 'asc'
-  }
-}
 
 const openModal = () => {
   selectedUtilisateur.value = null
@@ -236,37 +162,14 @@ const closeModal = () => {
   selectedUtilisateur.value = null
 }
 
-const openChangePasswordModal = (utilisateur: Utilisateur) => {
-  selectedUtilisateur.value = utilisateur
-  showPasswordModal.value = true
-}
-
-const closePasswordModal = () => {
-  showPasswordModal.value = false
-  selectedUtilisateur.value = null
-}
-
 const handleSubmit = async (data: any) => {
   try {
     isLoading.value = true
     await UtilisateurService.createUtilisateur(data)
     closeModal()
-    // Reload users
     utilisateurs.value = await UtilisateurService.getAllUtilisateurs()
   } catch (error) {
     console.error('Erreur lors de la création de l\'utilisateur:', error)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const handlePasswordChange = async (data: any) => {
-  try {
-    isLoading.value = true
-    await UtilisateurService.changePassword(selectedUtilisateur.value!.id, data)
-    closePasswordModal()
-  } catch (error) {
-    console.error('Erreur lors du changement de mot de passe:', error)
   } finally {
     isLoading.value = false
   }
@@ -279,7 +182,6 @@ const handleToggleActive = async (utilisateur: Utilisateur) => {
     await UtilisateurService.toggleUtilisateurStatut(utilisateur.id, !utilisateur.isActive);
     utilisateurs.value = await UtilisateurService.getAllUtilisateurs();
   } catch (e) {
-    // Optionally show error message
   } finally {
     isLoading.value = false;
   }
