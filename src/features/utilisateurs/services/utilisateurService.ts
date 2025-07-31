@@ -8,10 +8,7 @@ export class UtilisateurService {
   static async getAllUtilisateurs(): Promise<Utilisateur[]> {
     try {
       const response = await api.get('/utilisateurs')
-      return response.data.map((u: any) => ({
-        ...u,
-        isActive: u.active
-      }))
+      return response.data
     } catch (error: any) {
       console.error('Erreur lors de la récupération des utilisateurs:', error)
       throw new Error(error.response?.data?.message || 'Erreur lors de la récupération des utilisateurs')
