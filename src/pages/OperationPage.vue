@@ -3,8 +3,8 @@
     <!-- En-tête -->
     <div class="table-header">
       <div class="header-left">
-        <h2 class="table-title">Suivi des Opérations</h2>
-        <p class="table-subtitle">{{ filteredOperations.length }} opération(s) détaillée(s)</p>
+        <h2 class="table-title">Visualisation des Opérations</h2>
+        <p class="table-subtitle">{{ filteredOperations.length }} opération(s) détaillées</p>
         <p class="table-description">Historique complet de tous les mouvements par lot et leurs impacts sur le stock</p>
       </div>
       <div class="header-actions">
@@ -82,7 +82,6 @@
             <th>Impact Stock</th>
             <th>Date Opération</th>
             <th>Utilisateur</th>
-            <th class="actions-header">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -92,7 +91,6 @@
             </td>
             <td class="type-cell">
               <span class="type-badge" :class="getTypeClass(operation.mouvement?.type)">
-                <component :is="getTypeIcon(operation.mouvement?.type)" class="w-4 h-4" />
                 {{ getTypeLabel(operation.mouvement?.type) }}
               </span>
             </td>
@@ -120,8 +118,7 @@
             </td>
             <td class="impact-cell">
               <div class="impact-indicator" :class="getImpactClass(operation.mouvement?.type)">
-                <component :is="getImpactIcon(operation.mouvement?.type)" class="w-4 h-4" />
-                <span>{{ getImpactText(operation.mouvement?.type) }}</span>
+                {{ getImpactText(operation.mouvement?.type) }}
               </div>
             </td>
             <td class="date-cell">
@@ -134,24 +131,6 @@
               <div class="user-info">
                 <span class="user-name">{{ operation.mouvement?.utilisateur?.email || 'Utilisateur inconnu' }}</span>
                 <span class="user-email">{{ operation.mouvement?.utilisateur?.email || '-' }}</span>
-              </div>
-            </td>
-            <td class="actions-cell">
-              <div class="actions-group">
-                <button
-                  @click="viewOperationDetails(operation)"
-                  class="action-btn action-btn-view"
-                  title="Voir les détails"
-                >
-                  <EyeIcon class="w-4 h-4" />
-                </button>
-                <button
-                  @click="viewLotHistory(operation.lot)"
-                  class="action-btn action-btn-history"
-                  title="Historique du lot"
-                >
-                  <ClockIcon class="w-4 h-4" />
-                </button>
               </div>
             </td>
           </tr>
@@ -388,15 +367,6 @@ const getTypeClass = (type?: string) => {
   }
 }
 
-const getTypeIcon = (type?: string) => {
-  const icons: Record<string, any> = {
-    'ENTREE': ArrowDownIcon,
-    'SORTIE': ArrowUpIcon,
-    'AJUSTEMENT': AdjustmentsHorizontalIcon
-  }
-  return icons[type || ''] || ClipboardDocumentListIcon
-}
-
 const getTypeLabel = (type?: string) => {
   const labels: Record<string, string> = {
     'ENTREE': 'Entrée',
@@ -482,36 +452,31 @@ const closeHistoryModal = () => {
   align-items: flex-start;
   margin-bottom: 2rem;
   padding: 2rem;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: #f8fafc;
   border-radius: 1rem;
-  border: 1px solid #0ea5e9;
-  box-shadow: 0 1px 3px 0 rgba(14, 165, 233, 0.1);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
 }
 
 .table-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #0c4a6e;
+  color: #1e293b;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #0ea5e9, #0284c7);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .table-subtitle {
-  color: #0369a1;
+  color: #64748b;
   font-size: 0.875rem;
   margin-bottom: 0.25rem;
 }
 
 .table-description {
-  color: #075985;
+  color: #64748b;
   font-size: 0.75rem;
   font-style: italic;
 }
 
-/* Stats */
 .stats-summary {
   display: flex;
   gap: 1rem;
@@ -522,21 +487,21 @@ const closeHistoryModal = () => {
   flex-direction: column;
   align-items: center;
   padding: 1rem;
-  background: white;
+  background: #fff;
   border-radius: 0.5rem;
-  border: 1px solid #0ea5e9;
+  border: 1px solid #e2e8f0;
   min-width: 100px;
 }
 
 .stat-number {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0c4a6e;
+  color: #1e293b;
 }
 
 .stat-label {
   font-size: 0.75rem;
-  color: #0369a1;
+  color: #64748b;
   text-align: center;
 }
 
@@ -691,18 +656,18 @@ const closeHistoryModal = () => {
 }
 
 .type-entree {
-  background: var(--color-success-50, #dcfce7);
-  color: var(--color-success-700, #166534);
+  background: #dcfce7;
+  color: #166534;
 }
 
 .type-sortie {
-  background: var(--color-error-50, #fee2e2);
-  color: var(--color-error-700, #991b1b);
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .type-ajustement {
-  background: var(--color-warning-50, #fefce8);
-  color: var(--color-warning-700, #9a3412);
+  background: #fed7aa;
+  color: #9a3412;
 }
 
 .lot-info, .boisson-info, .user-info {

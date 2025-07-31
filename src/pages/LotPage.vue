@@ -261,13 +261,12 @@ const handleDelete = async (lot: Lot) => {
   <div class="lots-container">
     <div class="table-header">
       <div class="header-left">
-        <h2 class="table-title">Gestion des Lots</h2>
+        <h2 class="table-title">Lots</h2>
         <p class="table-subtitle">{{ filteredLots.length }} lot(s) trouvé(s)</p>
       </div>
       <div class="header-actions">
         <button class="btn btn-primary" @click="openModal()">
-          <PlusIcon class="w-4 h-4" />
-          Ajouter
+          Ajouter un lot
         </button>
       </div>
     </div>
@@ -308,7 +307,6 @@ const handleDelete = async (lot: Lot) => {
           <th>Fournisseur</th>
           <th @click="handleSort('datePeremption')" class="sortable-header" :class="{ 'sorted': sortBy === 'datePeremption' }">Date de Péremption</th>
           <th>Statut</th>
-          <th class="actions-header">Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -323,16 +321,6 @@ const handleDelete = async (lot: Lot) => {
           </td>
           <td>
             <span :class="['status-badge', getLotStatusClass(lot)]">{{ getLotStatus(lot) }}</span>
-          </td>
-          <td class="actions-cell">
-            <div class="actions-group">
-              <button @click="editLot(lot)" class="action-btn action-btn-edit" title="Modifier">
-                <PencilIcon class="w-4 h-4" />
-              </button>
-              <button @click="handleDelete(lot)" class="action-btn action-btn-delete" title="Supprimer">
-                <TrashIcon class="w-4 h-4" />
-              </button>
-            </div>
           </td>
         </tr>
         </tbody>
