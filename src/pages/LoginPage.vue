@@ -35,7 +35,7 @@
               class="toggle-password"
               @click="showPassword = !showPassword"
             >
-              {{ showPassword ? '🔒' : '👁️' }}
+              {{ showPassword ? 'Masquer' : 'Afficher' }}
             </button>
           </div>
           <span class="error-message" v-if="errors.motDePasse">{{ errors.motDePasse }}</span>
@@ -69,7 +69,7 @@
               class="toggle-password"
               @click="showOldPassword = !showOldPassword"
             >
-              {{ showOldPassword ? '🔒' : '👁️' }}
+              {{ showOldPassword ? 'Masquer' : 'Afficher' }}
             </button>
           </div>
           <span class="error-message" v-if="errors.ancienMotDePasse">{{ errors.ancienMotDePasse }}</span>
@@ -91,7 +91,7 @@
               class="toggle-password"
               @click="showNewPassword = !showNewPassword"
             >
-              {{ showNewPassword ? '🔒' : '👁️' }}
+              {{ showNewPassword ? 'Masquer' : 'Afficher' }}
             </button>
           </div>
           <span class="error-message" v-if="errors.nouveauMotDePasse">{{ errors.nouveauMotDePasse }}</span>
@@ -113,7 +113,7 @@
               class="toggle-password"
               @click="showConfirmPassword = !showConfirmPassword"
             >
-              {{ showConfirmPassword ? '🔒' : '👁️' }}
+              {{ showConfirmPassword ? 'Masquer' : 'Afficher' }}
             </button>
           </div>
           <span class="error-message" v-if="errors.confirmPassword">{{ errors.confirmPassword }}</span>
@@ -228,7 +228,7 @@ export default defineComponent({
 
       try {
         const response = await UtilisateurService.login(loginForm)
-        if (response.utilisateur.firstLogin) {
+        if (response.utilisateur.isFirstLogin) {
           isFirstLogin.value = true
           passwordForm.ancienMotDePasse = loginForm.motDePasse
           // Stocker le mot de passe pour préremplissage sur la page de changement

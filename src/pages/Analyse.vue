@@ -1,35 +1,35 @@
 <template>
   <div class="analyse-page">
-    <h1>Statistics Analysis</h1>
+    <h1>Analyse des statistiques</h1>
     <div class="chart-section">
-      <h2>Daily Movements</h2>
+      <h2>Mouvements quotidiens</h2>
       <template v-if="hasDailyData">
         <LineChart :data="dailyMovementsChartData" :options="lineChartOptions" />
       </template>
       <div v-else class="empty-state">
-        <img src="/vite.svg" alt="No data" class="empty-illustration" />
-        <p>No daily movement data available for the selected period.</p>
+        <img src="/vite.svg" alt="Aucune donnée" class="empty-illustration" />
+        <p>Aucune donnée de mouvement quotidien disponible pour la période sélectionnée.</p>
       </div>
     </div>
     <div class="chart-section">
-      <h2>Weekly Stock Movement</h2>
+      <h2>Mouvements de stock hebdomadaires</h2>
       <template v-if="hasWeeklyData">
         <BarChart :data="weeklyStockChartData" :options="barChartOptions" />
       </template>
       <div v-else class="empty-state">
-        <img src="/vite.svg" alt="No data" class="empty-illustration" />
-        <p>No weekly stock movement data available.</p>
+        <img src="/vite.svg" alt="Aucune donnée" class="empty-illustration" />
+        <p>Aucune donnée de mouvement de stock hebdomadaire disponible.</p>
       </div>
     </div>
     <div class="chart-section">
-      <h2>Stock Alerts</h2>
+      <h2>Alertes de stock</h2>
       <table v-if="stockAlerts && stockAlerts.length" class="stock-table">
         <thead>
           <tr>
-            <th>Beverage</th>
-            <th>Current Stock</th>
-            <th>Threshold</th>
-            <th>Severity</th>
+            <th>Boisson</th>
+            <th>Stock actuel</th>
+            <th>Seuil</th>
+            <th>Gravité</th>
           </tr>
         </thead>
         <tbody>
@@ -46,8 +46,8 @@
         </tbody>
       </table>
       <div v-else class="empty-state">
-        <img src="/vite.svg" alt="No alerts" class="empty-illustration" />
-        <p>No stock alerts. All stocks are healthy!</p>
+        <img src="/vite.svg" alt="Aucune alerte" class="empty-illustration" />
+        <p>Aucune alerte de stock. Tous les stocks sont sains !</p>
       </div>
     </div>
   </div>
@@ -56,7 +56,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { Line, Bar } from 'vue-chartjs';
-import {AnalysisService} from './../features/stats/services/statService.ts'; // Adjust the import path as needed
+import {AnalysisService} from './../features/stats/services/statService.ts';
 import {
   Chart as ChartJS,
   Title,
@@ -77,7 +77,6 @@ const stockAlerts = ref<any[]>([]);
 
 const fetchStats = async () => {
   try {
-    // Get today's date and 7 days later in ISO format
     const today = new Date();
     const weekLater = new Date();
     weekLater.setDate(today.getDate() + 7);
@@ -108,21 +107,21 @@ const dailyMovementsChartData = computed(() => {
     labels: dailyMovements.value.dates,
     datasets: [
       {
-        label: 'Entries',
+        label: 'Entrées',
         data: dailyMovements.value.entries,
         borderColor: 'green',
         backgroundColor: 'rgba(0,128,0,0.2)',
         fill: true
       },
       {
-        label: 'Exits',
+        label: 'Sorties',
         data: dailyMovements.value.exits,
         borderColor: 'red',
         backgroundColor: 'rgba(255,0,0,0.2)',
         fill: true
       },
       {
-        label: 'Adjustments',
+        label: 'Ajustements',
         data: dailyMovements.value.adjustments,
         borderColor: 'orange',
         backgroundColor: 'rgba(255,165,0,0.2)',
@@ -187,7 +186,6 @@ const barChartOptions = computed(() => ({
     y: { grid: { color: '#eee' }, ticks: { color: '#888', font: { size: 13 } } }
 }}));
 
-// Chart components
 const LineChart = Line;
 const BarChart = Bar;
 </script>

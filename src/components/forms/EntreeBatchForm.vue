@@ -36,10 +36,10 @@
               <div class="form-group">
                 <label>Boisson*</label>
                 <select
-                  v-model="lot.boisson"
-                  required
-                  :class="{ 'error': lotErrors[index]?.boisson }"
-                  @change="generateLotNumber(lot, index)"
+                    v-model="lot.boisson"
+                    required
+                    :class="{ 'error': lotErrors[index]?.boisson }"
+                    @change="generateLotNumber(lot, index)"
                 >
                   <option value="">Sélectionnez une boisson</option>
                   <option v-for="boisson in boissons" :key="boisson.id" :value="boisson">
@@ -51,11 +51,11 @@
               <div class="form-group">
                 <label>Numéro de lot*</label>
                 <input
-                  v-model="lot.numeroLot"
-                  type="text"
-                  required
-                  :class="{ 'error': lotErrors[index]?.numeroLot }"
-                  placeholder="Ex: LOT-2024-001"
+                    v-model="lot.numeroLot"
+                    type="text"
+                    required
+                    :class="{ 'error': lotErrors[index]?.numeroLot }"
+                    placeholder="Ex: LOT-2024-001"
                 />
                 <span v-if="lotErrors[index]?.numeroLot" class="error-message">{{ lotErrors[index].numeroLot }}</span>
               </div>
@@ -65,22 +65,22 @@
               <div class="form-group">
                 <label>Quantité*</label>
                 <input
-                  v-model.number="lot.quantiteInitiale"
-                  type="number"
-                  min="1"
-                  required
-                  :class="{ 'error': lotErrors[index]?.quantiteInitiale }"
-                  placeholder="Nombre d'unités"
+                    v-model.number="lot.quantiteInitiale"
+                    type="number"
+                    min="1"
+                    required
+                    :class="{ 'error': lotErrors[index]?.quantiteInitiale }"
+                    placeholder="Nombre d'unités"
                 />
                 <span v-if="lotErrors[index]?.quantiteInitiale" class="error-message">{{ lotErrors[index].quantiteInitiale }}</span>
               </div>
               <div class="form-group">
                 <label>Date de péremption*</label>
                 <input
-                  v-model="lot.datePeremption"
-                  type="date"
-                  required
-                  :class="{ 'error': lotErrors[index]?.datePeremption }"
+                    v-model="lot.datePeremption"
+                    type="date"
+                    required
+                    :class="{ 'error': lotErrors[index]?.datePeremption }"
                 />
                 <span v-if="lotErrors[index]?.datePeremption" class="error-message">{{ lotErrors[index].datePeremption }}</span>
               </div>
@@ -90,9 +90,9 @@
               <div class="form-group">
                 <label>Fournisseur*</label>
                 <select
-                  v-model="lot.fournisseur"
-                  required
-                  :class="{ 'error': lotErrors[index]?.fournisseur }"
+                    v-model="lot.fournisseur"
+                    required
+                    :class="{ 'error': lotErrors[index]?.fournisseur }"
                 >
                   <option value="">Sélectionnez un fournisseur</option>
                   <option v-for="fournisseur in fournisseurs" :key="fournisseur.id" :value="fournisseur.id">
@@ -107,9 +107,9 @@
               <div class="form-group form-group-checkbox">
                 <label class="checkbox-label">
                   <input
-                    type="checkbox"
-                    v-model="lot.vendable"
-                    class="checkbox-input"
+                      type="checkbox"
+                      v-model="lot.vendable"
+                      class="checkbox-input"
                   />
                   <span class="checkbox-text">Produit vendable</span>
                 </label>
@@ -217,14 +217,14 @@ onMounted(async () => {
 
 // Statistiques calculées
 const totalQuantity = computed(() =>
-  lots.value.reduce((sum, lot) => sum + (lot.quantiteInitiale || 0), 0)
+    lots.value.reduce((sum, lot) => sum + (lot.quantiteInitiale || 0), 0)
 )
 
 const uniqueBoissons = computed(() => {
   const boissonIds = new Set(
-    lots.value
-      .filter(lot => lot.boisson?.id)
-      .map(lot => lot.boisson!.id)
+      lots.value
+          .filter(lot => lot.boisson?.id)
+          .map(lot => lot.boisson!.id)
   )
   return boissonIds.size
 })
@@ -232,17 +232,17 @@ const uniqueBoissons = computed(() => {
 // Validation
 const isFormValid = computed(() => {
   return selectedUtilisateur.value &&
-         lots.value.length > 0 &&
-         lots.value.every(lot =>
-           lot.boisson &&
-           lot.numeroLot &&
-           lot.quantiteInitiale &&
-           lot.quantiteInitiale > 0 &&
-           lot.datePeremption &&
-           lot.fournisseur
-         ) &&
-         Object.keys(errors.value).length === 0 &&
-         Object.keys(lotErrors.value).length === 0
+      lots.value.length > 0 &&
+      lots.value.every(lot =>
+          lot.boisson &&
+          lot.numeroLot &&
+          lot.quantiteInitiale &&
+          lot.quantiteInitiale > 0 &&
+          lot.datePeremption &&
+          lot.fournisseur
+      ) &&
+      Object.keys(errors.value).length === 0 &&
+      Object.keys(lotErrors.value).length === 0
 })
 
 // Gestion des lots
@@ -355,7 +355,7 @@ const handleSubmit = () => {
   }))
   // Mapping strict pour l'utilisateur (UtilisateurDto)
   const user = selectedUtilisateur.value
-    ? {
+      ? {
         id: selectedUtilisateur.value.id,
         firstName: selectedUtilisateur.value.firstName,
         lastName: selectedUtilisateur.value.lastName,
@@ -364,7 +364,7 @@ const handleSubmit = () => {
         isActive: selectedUtilisateur.value.isActive,
         isFirstLogin: selectedUtilisateur.value.isFirstLogin,
       }
-    : undefined
+      : undefined
   emit('submit', {
     lots: lotsToSend,
     utilisateur: user,

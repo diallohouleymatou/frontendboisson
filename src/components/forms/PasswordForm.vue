@@ -103,54 +103,51 @@ const handleCancel = () => {
 
 <style scoped>
 .password-form {
-  padding: var(--space-4);
+  padding: 16px;
 }
 
 .form-group {
-  margin-bottom: var(--space-4);
+  margin-bottom: 16px;
 }
 
 .form-label {
   display: block;
-  margin-bottom: var(--space-2);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
 }
 
 .form-input {
   width: 100%;
-  padding: var(--space-3);
-  border: 1px solid var(--color-border-medium);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-base);
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 3px var(--color-primary-100);
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px #e3f0fd;
 }
 
 .error-message {
-  margin-top: var(--space-1);
-  font-size: var(--font-size-sm);
-  color: var(--color-error-600);
+  margin-top: 4px;
+  font-size: 0.875rem;
+  color: #d32f2f;
 }
 
 .form-actions {
   display: flex;
-  gap: var(--space-3);
+  gap: 12px;
   justify-content: flex-end;
-  margin-top: var(--space-6);
+  margin-top: 24px;
 }
 
 .btn {
-  padding: var(--space-2) var(--space-4);
+  padding: 8px 16px;
   border: none;
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -161,20 +158,20 @@ const handleCancel = () => {
 }
 
 .btn-secondary {
-  background: var(--color-gray-100);
-  color: var(--color-text-secondary);
+  background: #f5f5f5;
+  color: #757575;
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: var(--color-gray-200);
+  background: #eeeeee;
 }
 
 .btn-primary {
-  background: var(--color-primary-500);
+  background: #4285f4;
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--color-primary-600);
+  background: #3367d6;
 }
 </style>
