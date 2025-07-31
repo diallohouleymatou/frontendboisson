@@ -37,14 +37,12 @@ export class UtilisateurService {
 
       const response = await api.post<LoginResponse>('/utilisateurs/login', loginRequest)
       const { token, utilisateur } = response.data
-      console.log(response.data);
       if (!token || !utilisateur) {
         throw new Error('Réponse de connexion invalide')
       }
 
-      // Store the token for future requests
       localStorage.setItem('token', token)
-      localStorage.setItem('isFirstLogin', JSON.stringify(response.data.utilisateur.isFirstLogin))
+      localStorage.setItem('isFirstLogin', JSON.stringify(utilisateur.isFirstLogin))
       localStorage.setItem('user', JSON.stringify(utilisateur))
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
