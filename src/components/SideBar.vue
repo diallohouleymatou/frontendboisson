@@ -1,8 +1,8 @@
 <template>
-  <aside v-if="shouldShowSidebar" class="app-sidebar" :class="{ 'collapsed': isCollapsed }">
+  <aside v-if="shouldShowSidebar" class="app-sidebar">
     <div class="sidebar-content">
       <nav class="sidebar-nav">
-        <ul class="nav-list nav-list-large">
+        <ul class="nav-list">
           <li class="nav-item">
             <router-link to="/dashboard" class="nav-link" active-class="active">
               <ChartBarSquareIcon class="nav-icon" />
@@ -54,11 +54,6 @@
         </ul>
       </nav>
     </div>
-    <div class="sidebar-footer">
-      <div class="footer-content">
-        <button class="logout-btn" @click="handleLogout">Déconnexion</button>
-      </div>
-    </div>
   </aside>
 </template>
 
@@ -102,234 +97,88 @@ const shouldShowSidebar = computed(() => {
 
 <style scoped>
 .app-sidebar {
+  width: 260px;
+  min-width: 220px;
+  background: #fff;
+  color: #333;
   position: fixed;
-  top: var(--layout-header-height);
   left: 0;
+  top: 0;
   bottom: 0;
-  width: var(--layout-sidebar-width);
-  background: var(--color-bg-primary);
-  border-right: 1px solid var(--color-border-light);
-  z-index: 900;
-  transition: all var(--transition-base);
-  overflow: hidden;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+  z-index: 100;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-sm);
-}
-
-.app-sidebar.collapsed {
-  width: var(--layout-sidebar-collapsed-width);
 }
 
 .sidebar-content {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: var(--space-6) 0;
+  padding: 32px 0 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
+  flex: 1;
 }
 
 .nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  list-style: none;
+  gap: 8px;
 }
 
 .nav-item {
-  margin: 0;
+  width: 100%;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  color: var(--color-text-secondary);
+  gap: 12px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  color: #333;
   text-decoration: none;
-  font-size: 1.18rem;
-  font-weight: var(--font-weight-medium);
-  transition: all var(--transition-fast);
-  position: relative;
-  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
-  margin-right: var(--space-2);
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
 }
 
-.nav-link:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-secondary);
-  transform: translateX(2px);
-}
-
+.nav-link:hover,
 .nav-link.active {
-  color: var(--color-primary-600);
-  background: var(--color-primary-50);
-  font-weight: var(--font-weight-semibold);
+  background: #e0e0e0;
+  color: #4285f4;
 }
 
 .nav-icon {
-  flex-shrink: 0;
-  transition: all var(--transition-fast);
-}
-
-.nav-link:hover .nav-icon {
-  transform: scale(1.05);
-}
-
-.nav-link.active .nav-icon {
-  color: var(--color-primary-600);
-}
-
-.nav-text {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: all var(--transition-fast);
-  font-size: 1.18rem;
-}
-
-.collapsed .nav-text {
-  opacity: 0;
-  visibility: hidden;
-  width: 0;
-}
-
-.sidebar-footer {
-  border-top: 1px solid var(--color-border-light);
-  padding: var(--space-4);
-  background: var(--color-bg-secondary);
-}
-
-.footer-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.version-icon {
-  flex-shrink: 0;
-}
-
-.version-text {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-}
-
-.collapsed .version-text {
-  display: none;
-}
-
-.footer-actions {
-  display: flex;
-  gap: var(--space-2);
-}
-
-.footer-btn {
-  display: flex;
+  font-size: 1.1em;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  max-width: 20px;
+  max-height: 20px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border: none;
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition: all var(--transition-fast);
 }
 
-.footer-btn:hover {
-  background: var(--color-bg-primary);
-  color: var(--color-text-secondary);
-  transform: translateY(-1px);
-}
-
-.logout-btn {
-  margin-top: 1.5rem;
-  width: 100%;
-  background: #4CAF50;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 0.6rem 0;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.logout-btn:hover {
-  background: #388e3c;
-}
-
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .app-sidebar {
-    transform: translateX(-100%);
-    transition: transform var(--transition-base);
+    position: static;
+    width: 100%;
+    min-width: 0;
+    box-shadow: none;
   }
 
-  .app-sidebar:not(.collapsed) {
-    transform: translateX(0);
-  }
-
-  .app-sidebar.collapsed {
-    transform: translateX(-100%);
+  .sidebar-content {
+    padding: 8px 0;
   }
 }
 
-.sidebar-content::-webkit-scrollbar {
-  width: 3px;
-}
-
-.sidebar-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.sidebar-content::-webkit-scrollbar-thumb {
-  background: var(--color-border-medium);
-  border-radius: var(--radius-full);
-}
-
-.sidebar-content::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-dark);
-}
-
-.collapsed .nav-link {
-  position: relative;
-}
-
-.collapsed .nav-link:hover::after {
-  content: attr(title);
-  position: absolute;
-  left: 100%;
-  top: 50%;
-  transform: translateY(-50%);
-  margin-left: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  background: var(--color-text-primary);
-  color: var(--color-text-inverse);
-  font-size: var(--font-size-xs);
-  border-radius: var(--radius-md);
-  white-space: nowrap;
-  z-index: 1000;
-  opacity: 0;
-  animation: fadeIn 0.2s ease-out forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-50%) translateX(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(-50%) translateX(0);
-  }
-}
 </style>

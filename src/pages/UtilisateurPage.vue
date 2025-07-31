@@ -1,104 +1,80 @@
 <template>
-  <div class="utilisateur-page">
-    <div class="table-header">
+  <div class="utilisateur-page container">
+    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
       <div class="header-left">
-        <h2 class="table-title">Gestion des Utilisateurs</h2>
-        <p class="table-subtitle">{{ filteredUtilisateurs.length }} utilisateur(s)</p>
+        <h2 class="table-title" style="margin: 0; color: #333;">Gestion des Utilisateurs</h2>
+        <p class="table-subtitle" style="color: #666;">{{ filteredUtilisateurs.length }} utilisateur(s)</p>
       </div>
       <div class="header-actions">
         <button class="btn btn-primary" @click="openModal">
-          <PlusIcon class="w-4 h-4" />
+          <PlusIcon class="w-4 h-4" style="margin-right: 6px;" />
           Nouvel utilisateur
         </button>
       </div>
     </div>
-
-    <!-- Barre de recherche et filtres -->
-    <div class="filters-bar">
-      <div class="search-container">
-        <MagnifyingGlassIcon class="search-icon" />
+    <div class="filters-bar" style="display: flex; gap: 16px; margin-bottom: 20px;">
+      <div class="search-container" style="flex: 1; display: flex; align-items: center; background: #f2f2f2; border-radius: 8px; padding: 6px 12px;">
+        <MagnifyingGlassIcon class="search-icon" style="margin-right: 8px; color: #888;" />
         <input
           v-model="searchTerm"
           type="text"
           placeholder="Rechercher un utilisateur..."
           class="search-input"
+          style="border: none; background: transparent; outline: none; width: 100%;"
         />
       </div>
-
-      <div class="filter-container">
-        <FunnelIcon class="filter-icon" />
-        <select v-model="selectedFilter" class="filter-select">
+      <div class="filter-container" style="display: flex; align-items: center; background: #f2f2f2; border-radius: 8px; padding: 6px 12px;">
+        <FunnelIcon class="filter-icon" style="margin-right: 8px; color: #888;" />
+        <select v-model="selectedFilter" class="filter-select" style="border: none; background: transparent; outline: none;">
           <option v-for="filter in filters" :key="filter.value" :value="filter.value">
             {{ filter.label }}
           </option>
         </select>
       </div>
     </div>
-
-    <!-- Tableau des utilisateurs -->
     <div class="table-wrapper">
-      <div v-if="isLoading" class="loading-state">
+      <div v-if="isLoading" class="loading-state" style="text-align: center; padding: 40px 0;">
         <div class="loading-spinner"></div>
         <p>Chargement des utilisateurs...</p>
       </div>
-
-      <div v-else-if="filteredUtilisateurs.length === 0" class="empty-state">
+      <div v-else-if="filteredUtilisateurs.length === 0" class="empty-state" style="text-align: center; color: #888; padding: 40px 0;">
         <p>Aucun utilisateur trouvé</p>
       </div>
-
-      <table v-else class="modern-table">
+      <table v-else class="table">
         <thead>
           <tr>
-            <th v-for="column in columns" :key="column.key" @click="handleSort(column.key)" class="sortable-header" :class="{ 'sorted': sortBy === column.key }">
-              {{ column.label }}
-              <span class="sort-indicator" v-if="sortBy === column.key">
-                {{ sortOrder === 'asc' ? '↑' : '↓' }}
-              </span>
-            </th>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Rôle</th>
             <th>Statut</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="utilisateur in filteredUtilisateurs" :key="utilisateur.id" class="table-row">
+          <tr v-for="utilisateur in filteredUtilisateurs" :key="utilisateur.id">
+            <td>{{ utilisateur.nom }}</td>
             <td>{{ utilisateur.email }}</td>
+            <td>{{ utilisateur.role }}</td>
             <td>
-              <span class="role-badge" :class="getRoleBadgeClass(utilisateur.role)">
-                {{ getRoleLabel(utilisateur.role) }}
-              </span>
-            </td>
-            <td>{{ formatDate(utilisateur.createdAt) }}</td>
-            <td>
-              <span :class="['status-badge', utilisateur.isActive ? 'active' : 'inactive']">
-                {{ utilisateur.isActive ? 'Actif' : 'Inactif' }}
+              <span :style="{ color: utilisateur.actif ? '#34a853' : '#ea4335', fontWeight: 'bold' }">
+                {{ utilisateur.actif ? 'Actif' : 'Inactif' }}
               </span>
             </td>
             <td>
-              <button class="btn btn-icon btn-toggle" @click="handleToggleActive(utilisateur)" :title="utilisateur.isActive ? 'Désactiver' : 'Activer'">
-                {{ utilisateur.isActive ? 'Désactiver' : 'Activer' }}
+              <button
+                class="btn"
+                :class="utilisateur.actif ? 'btn-danger' : 'btn-primary'"
+                @click="toggleStatus(utilisateur)"
+                style="margin-right: 8px; transition: background 0.2s, color 0.2s;"
+              >
+                {{ utilisateur.actif ? 'Désactiver' : 'Activer' }}
               </button>
+              <button class="btn btn-primary" @click="editUtilisateur(utilisateur)">Modifier</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-
-    <!-- Modal pour nouvel utilisateur -->
-    <Modal v-model="showModal" :title="modalTitle">
-      <UtilisateurForm
-        :utilisateur="selectedUtilisateur"
-        @submit="handleSubmit"
-        @cancel="closeModal"
-      />
-    </Modal>
-
-    <!-- Modal pour changement de mot de passe -->
-    <Modal v-model="showPasswordModal" title="Changer le mot de passe">
-      <PasswordForm
-        :utilisateur="selectedUtilisateur"
-        @submit="handlePasswordChange"
-        @cancel="closePasswordModal"
-      />
-    </Modal>
   </div>
 </template>
 
@@ -393,65 +369,48 @@ const handleToggleActive = async (utilisateur: Utilisateur) => {
 /* Filter styles */
 .filters-bar {
   display: flex;
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
-  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 .search-container {
-  position: relative;
   flex: 1;
-  min-width: 300px;
+  display: flex;
+  align-items: center;
+  background: #f2f2f2;
+  border-radius: 8px;
+  padding: 6px 12px;
 }
 
 .search-icon {
-  position: absolute;
-  left: var(--space-3);
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  color: var(--color-text-tertiary);
+  margin-right: 8px;
+  color: #888;
 }
 
 .search-input {
-  width: 100%;
-  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-10);
-  border: 1px solid var(--color-border-medium);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-elevated);
-  color: var(--color-text-primary);
-  font-size: var(--font-size-base);
-  transition: all var(--transition-base);
-}
-
-.search-input:focus {
+  border: none;
+  background: transparent;
   outline: none;
-  border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 3px var(--color-primary-500)1a;
+  width: 100%;
 }
 
 .filter-container {
-  position: relative;
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  background: #f2f2f2;
+  border-radius: 8px;
+  padding: 6px 12px;
 }
 
 .filter-icon {
-  width: 20px;
-  height: 20px;
-  color: var(--color-text-tertiary);
+  margin-right: 8px;
+  color: #888;
 }
 
 .filter-select {
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border-medium);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-elevated);
-  color: var(--color-text-primary);
-  font-size: var(--font-size-base);
-  cursor: pointer;
+  border: none;
+  background: transparent;
+  outline: none;
 }
 
 /* Table wrapper */
@@ -464,13 +423,13 @@ const handleToggleActive = async (utilisateur: Utilisateur) => {
 }
 
 /* Table styles */
-.modern-table {
+.table {
   width: 100%;
   border-collapse: collapse;
   background: var(--color-bg-primary);
 }
 
-.modern-table th {
+.table th {
   background: var(--color-bg-tertiary);
   padding: var(--space-4);
   text-align: left;
@@ -509,7 +468,7 @@ const handleToggleActive = async (utilisateur: Utilisateur) => {
   text-align: center;
 }
 
-.modern-table td {
+.table td {
   padding: var(--space-4);
   border-bottom: 1px solid var(--color-border-light);
   vertical-align: middle;
