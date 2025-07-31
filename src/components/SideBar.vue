@@ -54,6 +54,9 @@
         </ul>
       </nav>
     </div>
+    <div class="sidebar-logout">
+      <button class="logout-btn" @click="handleLogout">Se déconnecter</button>
+    </div>
   </aside>
 </template>
 
@@ -80,8 +83,9 @@ defineProps<Props>()
 
 const router = useRouter()
 const route = useRoute()
-const handleLogout = async () => {
-  await UtilisateurService.logout()
+const handleLogout = () => {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
   router.push('/login')
 }
 
@@ -166,6 +170,27 @@ const shouldShowSidebar = computed(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.sidebar-logout {
+  padding: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #4285f4;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.logout-btn:hover {
+  background: #357ae8;
 }
 
 @media (max-width: 900px) {

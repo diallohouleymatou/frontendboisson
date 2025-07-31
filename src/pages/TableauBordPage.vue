@@ -1,62 +1,13 @@
-<script setup lang="ts">
-import { ChartBarIcon, CubeIcon, InboxArrowDownIcon, UserGroupIcon } from '@heroicons/vue/24/outline'
-import {computed, onMounted, ref} from 'vue'
-import { StatService } from '../features/stats/services/statService'
-import type { DashboardStatisticsDto } from '../features/stats/models/stat'
-
-const dashboardStats = ref<DashboardStatisticsDto | null>(null)
-const loadingStats = ref(true)
-const statsError = ref('')
-
-onMounted(async () => {
-  try {
-    dashboardStats.value = await StatService.getDashboardStats()
-  } catch (e) {
-    statsError.value = 'Erreur lors du chargement des statistiques.'
-  } finally {
-    loadingStats.value = false
-  }
-})
-
-// Calcul des statistiques à afficher
-const stats = computed(() => dashboardStats.value ? [
-  { label: 'Total Boissons', value: dashboardStats.value.totalBeverages, icon: CubeIcon, color: 'primary' },
-  { label: 'Lots en Stock', value: dashboardStats.value.totalStock, icon: InboxArrowDownIcon, color: 'accent' },
-  { label: 'Utilisateurs', value: dashboardStats.value.totalUsers, icon: UserGroupIcon, color: 'success' },
-  { label: 'Mouvements', value: dashboardStats.value.totalMovements, icon: ChartBarIcon, color: 'info' },
-  { label: 'Valeur Totale', value: dashboardStats.value.totalValue, icon: ChartBarIcon, color: 'warning' },
-  { label: 'Alertes Stock Faible', value: dashboardStats.value.lowStockAlerts, icon: InboxArrowDownIcon, color: 'danger' },
-] : [])
-
-// Mouvements récents
-const recentMovements = [
-  { id: 1, type: 'Entrée', produit: 'Coca-Cola 33cl', quantite: 50, date: '2024-01-15', status: 'success' },
-  { id: 2, type: 'Sortie', produit: 'Eau Minérale 1L', quantite: 20, date: '2024-01-15', status: 'warning' },
-  { id: 3, type: 'Entrée', produit: 'Jus d\'Orange 25cl', quantite: 30, date: '2024-01-14', status: 'success' },
-  { id: 4, type: 'Sortie', produit: 'Sprite 33cl', quantite: 15, date: '2024-01-14', status: 'warning' }
-]
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  })
-}
-</script>
-
 <template>
   <div class="dashboard-container">
-    <!-- En-tête avec effet de lueur -->
-    <div class="dashboard-header">
+    <div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
       <div class="header-content">
         <h1 class="dashboard-title">Tableau de Bord</h1>
         <p class="dashboard-subtitle">Vue d'ensemble de votre gestion de stock</p>
       </div>
+      <button class="logout-btn" @click="logoutAndRedirect">Se déconnecter</button>
       <div class="header-decoration"></div>
     </div>
-
-    <!-- Statistiques avec animations -->
     <div class="stats-grid">
       <div v-if="loadingStats" class="dashboard-message loading">Chargement des statistiques...</div>
       <div v-else-if="statsError" class="dashboard-message error">{{ statsError }}</div>
@@ -78,11 +29,46 @@ const formatDate = (dateString: string) => {
         </div>
       </template>
     </div>
-
-    <!-- Mouvements récents avec design moderne -->
-    <!-- La section du tableau des mouvements récents a été supprimée pour un design plus épuré -->
   </div>
 </template>
+
+<script setup lang="ts">
+import { ChartBarIcon, CubeIcon, InboxArrowDownIcon, UserGroupIcon } from '@heroicons/vue/24/outline'
+import {computed, onMounted, ref} from 'vue'
+import { StatService } from '../features/stats/services/statService'
+import type { DashboardStatisticsDto } from '../features/stats/models/stat'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const dashboardStats = ref<DashboardStatisticsDto | null>(null)
+const loadingStats = ref(true)
+const statsError = ref('')
+
+onMounted(async () => {
+  try {
+    dashboardStats.value = await StatService.getDashboardStats()
+  } catch (e) {
+    statsError.value = 'Erreur lors du chargement des statistiques.'
+  } finally {
+    loadingStats.value = false
+  }
+})
+const stats = computed(() => dashboardStats.value ? [
+  { label: 'Total Boissons', value: dashboardStats.value.totalBeverages, icon: CubeIcon, color: 'primary' },
+  { label: 'Lots en Stock', value: dashboardStats.value.totalStock, icon: InboxArrowDownIcon, color: 'accent' },
+  { label: 'Utilisateurs', value: dashboardStats.value.totalUsers, icon: UserGroupIcon, color: 'success' },
+  { label: 'Mouvements', value: dashboardStats.value.totalMovements, icon: ChartBarIcon, color: 'info' },
+  { label: 'Valeur Totale', value: dashboardStats.value.totalValue, icon: ChartBarIcon, color: 'warning' },
+  { label: 'Alertes Stock Faible', value: dashboardStats.value.lowStockAlerts, icon: InboxArrowDownIcon, color: 'danger' },
+] : [])
+
+function logoutAndRedirect() {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+  router.push({ name: 'login' })
+}
+</script>
 
 <style scoped>
 .dashboard-container {
@@ -171,6 +157,19 @@ const formatDate = (dateString: string) => {
 .dashboard-message.error {
   background-color: #ffe0e0;
   color: #990000;
+}
+
+.logout-btn {
+  background-color: transparent;
+  border: none;
+  color: #007bff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.logout-btn:hover {
+  color: #0056b3;
 }
 
 @media (max-width: 768px) {

@@ -265,7 +265,6 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      // Initialize auth on component mount
       UtilisateurService.initializeAuth()
     })
 

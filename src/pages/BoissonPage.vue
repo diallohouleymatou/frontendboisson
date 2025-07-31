@@ -23,8 +23,6 @@ const modalTitle = ref('')
 const selectedBoisson = ref<Boisson | null>(null)
 const boissons = ref<Boisson[]>([]);
 const boisson = ref<Boisson | null>(null);
-const boissonService = new BoissonService();
-
 
 const filters = [
   { value: 'all', label: 'Toutes les boissons' },
@@ -106,14 +104,6 @@ const formatPrice = (price: number) => {
   }).format(price);
 };
 
-const handleDelete = (boisson: Boisson) => {
-  if (!isGerant.value) {
-    handleUnauthorizedAction();
-    return;
-  }
-  console.log('Supprimer:', boisson);
-};
-
 const handleEdit = (boisson: Boisson) => {
   if (!isGerant.value) {
     handleUnauthorizedAction();
@@ -130,7 +120,7 @@ const handleToggleActive = async (boisson: Boisson) => {
     return;
   }
   try {
-    const updatedBoisson = await BoissonService.activateOrDeactivateBoisson(boisson.id);
+    const updatedBoisson = await BoissonService.activateOrDeactivateBoisson(boisson.id!);
     const index = boissons.value.findIndex(b => b.id === boisson.id);
     if (index !== -1) {
       boissons.value[index] = updatedBoisson;
@@ -179,13 +169,6 @@ const handleSubmit = async (boissonData: Boisson) => {
 const currentUser = computed(() => UtilisateurService.getCurrentUser());
 const isGerant = computed(() => currentUser.value?.role === 'GERANT');
 
-const handleAddClick = () => {
-  if (!isGerant.value) {
-    ElMessage.warning("Vous n'avez pas le droit d'ajouter une boisson.");
-    return;
-  }
-  openModal();
-};
 
 const handleUnauthorizedAction = (message = "Vous n'êtes pas autorisé à effectuer cette opération.") => {
   ElMessage.warning(message);

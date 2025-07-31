@@ -52,7 +52,7 @@
         </thead>
         <tbody>
           <tr v-for="utilisateur in filteredUtilisateurs" :key="utilisateur.id">
-            <td>{{ utilisateur.lastName }}</td>
+            <td>{{ utilisateur.firstName}}</td>
             <td>{{ utilisateur.email }}</td>
             <td>{{ utilisateur.role }}</td>
             <td>

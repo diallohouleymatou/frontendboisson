@@ -80,7 +80,6 @@ export default defineComponent({
       oldPassword.value = localStorage.getItem('lastLoginPassword') || ''
       localStorage.removeItem('lastLoginPassword')
     }
-
     const passwordMismatch = computed(() => {
       return newPassword.value && confirmPassword.value && newPassword.value !== confirmPassword.value
     })
