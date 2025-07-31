@@ -8,41 +8,16 @@
       </div>
       <div class="header-actions">
         <div class="dropdown-container" @click.stop>
-          <button class="btn btn-primary dropdown-trigger" @click="toggleDropdown">
-            <PlusIcon class="w-4 h-4" />
+          <select v-model="selectedType" class="dropdown-select">
+            <option disabled value="">Sélectionner un type de mouvement</option>
+            <option value="ENTREE">Entrée de stock</option>
+            <option value="ENTREE_BATCH">Entrée par lot</option>
+            <option value="SORTIE">Sortie de stock</option>
+            <option value="AJUSTEMENT">Ajustement</option>
+          </select>
+          <button class="btn btn-primary" @click="handleTypeSelection" :disabled="!selectedType">
             Créer un mouvement
-            <ChevronDownIcon class="w-4 h-4 ml-1" :class="{ 'rotate-180': showDropdown }" />
           </button>
-          <div v-if="showDropdown" class="dropdown-menu" @click.stop>
-            <button @click="openModal('ENTREE')" class="dropdown-item">
-              <ArrowDownIcon class="w-4 h-4 text-green-600" />
-              <div class="item-content">
-                <span class="item-title">Entrée de stock</span>
-                <span class="item-desc">Ajouter un nouveau lot en stock</span>
-              </div>
-            </button>
-            <button @click="openModal('ENTREE_BATCH')" class="dropdown-item">
-              <ArchiveBoxIcon class="w-4 h-4 text-blue-600" />
-              <div class="item-content">
-                <span class="item-title">Entrée par lot</span>
-                <span class="item-desc">Traitement de plusieurs lots</span>
-              </div>
-            </button>
-            <button @click="openModal('SORTIE')" class="dropdown-item">
-              <ArrowUpIcon class="w-4 h-4 text-red-600" />
-              <div class="item-content">
-                <span class="item-title">Sortie de stock</span>
-                <span class="item-desc">Retirer du stock existant</span>
-              </div>
-            </button>
-            <button @click="openModal('AJUSTEMENT')" class="dropdown-item">
-              <AdjustmentsHorizontalIcon class="w-4 h-4 text-orange-600" />
-              <div class="item-content">
-                <span class="item-title">Ajustement</span>
-                <span class="item-desc">Corriger les quantités</span>
-              </div>
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -113,7 +88,7 @@
             <th>Utilisateur</th>
             <th>Raison / Motif</th>
             <th>Type d'ajustement</th>
-            <th class="actions-header">Actions</th>
+            <!-- Suppression de la colonne Actions -->
           </tr>
         </thead>
         <tbody>
@@ -153,17 +128,7 @@
               </span>
               <span v-else class="text-muted">-</span>
             </td>
-            <td class="actions-cell">
-              <div class="actions-group">
-                <button
-                  @click="viewMouvementDetails(mouvement)"
-                  class="action-btn action-btn-view"
-                  title="Voir les détails"
-                >
-                  <EyeIcon class="w-4 h-4" />
-                </button>
-              </div>
-            </td>
+            <!-- Suppression de la cellule Actions -->
           </tr>
         </tbody>
       </table>
@@ -384,6 +349,14 @@ const handleAjustementSubmit = async (data: any) => {
   }
 }
 
+const selectedType = ref("");
+const handleTypeSelection = () => {
+  if (selectedType.value) {
+    openModal(selectedType.value);
+    selectedType.value = "";
+  }
+}
+
 // Fonctions utilitaires
 const filteredMouvements = computed(() => {
   let filtered = mouvements.value
@@ -539,10 +512,7 @@ const closeDetailsModal = () => {
   font-weight: 700;
   color: #1e293b;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  /* Suppression du dégradé pour cohérence */
 }
 
 .table-subtitle {

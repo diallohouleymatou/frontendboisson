@@ -102,7 +102,7 @@ onMounted(async () => {
 const isLoading = ref(true);
 const searchTerm = ref('');
 const selectedFilter = ref('all');
-const sortBy = ref('numero');
+const sortBy = ref('id');
 const sortOrder = ref<'asc' | 'desc'>('asc');
 
 // Filtres disponibles
@@ -242,11 +242,23 @@ const handleSubmit = (lotData: Lot) => {
   }
   closeModal()
 }
+
+const handleDelete = async (lot: Lot) => {
+  if (!confirm(`Êtes-vous sûr de vouloir supprimer le lot ${lot.numeroLot} ?`)) return;
+  try {
+    isLoading.value = true;
+    await inventaireService.deleteLot(lot.id);
+    lots.value = await inventaireService.getAllLots();
+  } catch (error) {
+    console.error('Erreur lors de la suppression du lot:', error);
+  } finally {
+    isLoading.value = false;
+  }
+};
 </script>
 
 <template>
   <div class="lots-container">
-    <!-- En-tête avec actions -->
     <div class="table-header">
       <div class="header-left">
         <h2 class="table-title">Gestion des Lots</h2>
@@ -259,8 +271,6 @@ const handleSubmit = (lotData: Lot) => {
         </button>
       </div>
     </div>
-
-    <!-- Barre de recherche et filtres -->
     <div class="filters-bar">
       <div class="search-container">
         <MagnifyingGlassIcon class="search-icon" />
@@ -271,7 +281,6 @@ const handleSubmit = (lotData: Lot) => {
             class="search-input"
         />
       </div>
-
       <div class="filter-container">
         <FunnelIcon class="filter-icon" />
         <select v-model="selectedFilter" class="filter-select">
@@ -281,51 +290,29 @@ const handleSubmit = (lotData: Lot) => {
         </select>
       </div>
     </div>
-
-    <!-- Tableau responsive -->
     <div class="table-wrapper">
       <div v-if="isLoading" class="loading-state">
         <div class="loading-spinner"></div>
         <p>Chargement des lots...</p>
       </div>
-
       <div v-else-if="filteredLots.length === 0" class="empty-state">
         <p>Aucun lot trouvé</p>
       </div>
-
       <table v-else class="modern-table">
         <thead>
         <tr>
-          <th
-              v-for="column in [
-                { key: 'id', label: 'ID' },
-                { key: 'numero', label: 'Numéro' },
-                { key: 'boissonNom', label: 'Boisson' },
-                { key: 'quantite', label: 'Quantité' },
-                { key: 'fournisseur', label: 'Fournisseur' },
-                { key: 'datePeremption', label: 'Date de Péremption' },
-              ]"
-              :key="column.key"
-              @click="handleSort(column.key)"
-              class="sortable-header"
-              :class="{ 'sorted': sortBy === column.key }"
-          >
-            {{ column.label }}
-            <span class="sort-indicator">
-                <span v-if="sortBy === column.key">
-                  {{ sortOrder === 'asc' ? '↑' : '↓' }}
-                </span>
-              </span>
-          </th>
+          <th @click="handleSort('id')" class="sortable-header" :class="{ 'sorted': sortBy === 'id' }">ID</th>
+          <th @click="handleSort('numeroLot')" class="sortable-header" :class="{ 'sorted': sortBy === 'numeroLot' }">Numéro</th>
+          <th>Boisson</th>
+          <th>Quantité</th>
+          <th>Fournisseur</th>
+          <th @click="handleSort('datePeremption')" class="sortable-header" :class="{ 'sorted': sortBy === 'datePeremption' }">Date de Péremption</th>
+          <th>Statut</th>
           <th class="actions-header">Actions</th>
         </tr>
         </thead>
         <tbody>
-        <tr
-            v-for="lot in filteredLots"
-            :key="lot.id"
-            class="table-row"
-        >
+        <tr v-for="lot in filteredLots" :key="lot.id" class="table-row">
           <td class="id-cell">{{ lot.id }}</td>
           <td class="name-cell">{{ lot.numeroLot }}</td>
           <td class="name-cell">{{ lot.boisson.nom }}</td>
@@ -334,20 +321,15 @@ const handleSubmit = (lotData: Lot) => {
           <td class="date-cell">
             <span class="date-value">{{ formatDate(lot.datePeremption) }}</span>
           </td>
+          <td>
+            <span :class="['status-badge', getLotStatusClass(lot)]">{{ getLotStatus(lot) }}</span>
+          </td>
           <td class="actions-cell">
             <div class="actions-group">
-              <button
-                  @click="openModal(lot)"
-                  class="action-btn action-btn-edit"
-                  title="Modifier"
-              >
+              <button @click="editLot(lot)" class="action-btn action-btn-edit" title="Modifier">
                 <PencilIcon class="w-4 h-4" />
               </button>
-              <button
-                  @click="handleDelete(lot)"
-                  class="action-btn action-btn-delete"
-                  title="Supprimer"
-              >
+              <button @click="handleDelete(lot)" class="action-btn action-btn-delete" title="Supprimer">
                 <TrashIcon class="w-4 h-4" />
               </button>
             </div>
@@ -356,8 +338,7 @@ const handleSubmit = (lotData: Lot) => {
         </tbody>
       </table>
     </div>
-
-    <Modal v-model="showModal" :title="modalTitle">
+    <Modal :model-value="showModal" :title="modalTitle" @update:modelValue="showModal = $event">
       <LotForm
         :lot="selectedLot"
         :boissons="boissons"
@@ -369,346 +350,198 @@ const handleSubmit = (lotData: Lot) => {
 </template>
 
 <style scoped>
-/* Import du système de design */
-
-
 .lots-container {
-  background: var(--color-bg-primary);
-  padding: var(--space-6);
-  border-radius: var(--radius-lg);
-  min-height: 100vh;
+  padding: 20px;
 }
-
-/* En-tête du tableau */
 .table-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: var(--space-6);
-  padding: var(--space-6);
-  background: var(--color-bg-elevated);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-light);
+  margin-bottom: 24px;
+  padding: 20px 0 10px 0;
 }
-
 .header-left {
   flex: 1;
 }
-
 .table-title {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-2);
-  background: linear-gradient(135deg, var(--color-primary-500), var(--color-accent-500));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 1.7rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
 }
-
 .table-subtitle {
-  font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
+  font-size: 1rem;
+  color: #888;
 }
-
 .header-actions {
   display: flex;
-  gap: var(--space-3);
+  align-items: center;
+  gap: 10px;
 }
-
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 6px;
   border: none;
-  border-radius: var(--radius-md);
-  font-weight: var(--font-weight-medium);
-  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: background 0.2s, color 0.2s;
 }
-
 .btn-primary {
-  background: var(--color-primary-500);
-  color: var(--color-text-inverse);
+  background: #4285f4;
+  color: #fff;
 }
-
-.btn-primary:hover {
-  background: var(--color-primary-600);
-  box-shadow: var(--glow-primary);
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
-
-/* Barre de filtres */
 .filters-bar {
   display: flex;
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
-  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 18px;
 }
-
 .search-container {
-  position: relative;
   flex: 1;
-  min-width: 300px;
-}
-
-.search-icon {
-  position: absolute;
-  left: var(--space-3);
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  color: var(--color-text-tertiary);
-}
-
-.search-input {
-  width: 100%;
-  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-10);
-  border: 1px solid var(--color-border-medium);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-elevated);
-  color: var(--color-text-primary);
-  font-size: var(--font-size-base);
-  transition: all var(--transition-base);
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 3px var(--color-primary-500)1a;
-}
-
-.filter-container {
-  position: relative;
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  background: #f2f2f2;
+  border-radius: 8px;
+  padding: 6px 12px;
 }
-
-.filter-icon {
-  width: 20px;
-  height: 20px;
-  color: var(--color-text-tertiary);
+.search-icon {
+  margin-right: 8px;
+  color: #888;
+  width: 18px;
+  height: 18px;
 }
-
-.filter-select {
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border-medium);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-elevated);
-  color: var(--color-text-primary);
-  font-size: var(--font-size-base);
-  cursor: pointer;
+.search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-size: 1rem;
 }
-
-/* Wrapper du tableau */
-.table-wrapper {
-  background: var(--color-bg-elevated);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-light);
-  overflow: hidden;
-  box-shadow: var(--shadow-base);
-}
-
-/* États de chargement et vide */
-.loading-state, .empty-state {
+.filter-container {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  background: #f2f2f2;
+  border-radius: 8px;
+  padding: 6px 12px;
+}
+.filter-icon {
+  margin-right: 8px;
+  color: #888;
+  width: 18px;
+  height: 18px;
+}
+.filter-select {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 1rem;
+}
+.table-wrapper {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 0;
+  overflow-x: auto;
+}
+.modern-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+.modern-table th, .modern-table td {
+  border: 1px solid #dee2e6;
+  padding: 12px 16px;
+  text-align: left;
+  vertical-align: middle;
+}
+.modern-table th {
+  background-color: #f8f9fa;
+  color: #333;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+.modern-table th.sorted {
+  color: #4285f4;
+}
+.status-badge {
+  display: inline-block;
+  padding: 0.25em 0.7em;
+  font-size: 0.95em;
+  border-radius: 0.5em;
+  color: #fff;
+}
+.status-expired {
+  background: #ea4335;
+}
+.status-empty {
+  background: #fbbc04;
+  color: #333;
+}
+.status-warning {
+  background: #fbbc04;
+  color: #333;
+}
+.status-available {
+  background: #34a853;
+}
+.action-btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-16);
-  color: var(--color-text-secondary);
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
-
+.action-btn-edit {
+  background: #e3f0ff;
+  color: #4285f4;
+}
+.action-btn-edit:hover {
+  background: #d2e3fc;
+}
+.action-btn-delete {
+  background: #fdecea;
+  color: #ea4335;
+}
+.action-btn-delete:hover {
+  background: #f9cfcf;
+}
+.loading-state, .empty-state {
+  text-align: center;
+  color: #888;
+  padding: 40px 0;
+}
 .loading-spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid var(--color-border-light);
-  border-top: 3px solid var(--color-primary-500);
+  border: 3px solid #eee;
+  border-top: 3px solid #4285f4;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: var(--space-4);
+  margin: 0 auto 12px auto;
 }
-
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-
-/* Tableau moderne */
-.modern-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--color-bg-primary);
-}
-
-.modern-table th {
-  background: var(--color-bg-tertiary);
-  padding: var(--space-4);
-  text-align: left;
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-  border-bottom: 2px solid var(--color-border-medium);
-  position: relative;
-}
-
-.sortable-header {
-  cursor: pointer;
-  user-select: none;
-  transition: all var(--transition-base);
-}
-
-.sortable-header:hover {
-  background: var(--color-bg-muted);
-  color: var(--color-text-primary);
-}
-
-.sortable-header.sorted {
-  color: var(--color-primary-500);
-}
-
-.sort-indicator {
-  position: absolute;
-  right: var(--space-2);
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: var(--font-size-sm);
-}
-
-.actions-header {
-  width: 120px;
-  text-align: center;
-}
-
-.modern-table td {
-  padding: var(--space-4);
-  border-bottom: 1px solid var(--color-border-light);
-  vertical-align: middle;
-}
-
-.table-row {
-  transition: all var(--transition-fast);
-}
-
-.table-row:hover {
-  background: var(--color-bg-secondary);
-}
-
-/* Cellules spécifiques */
-.id-cell {
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-tertiary);
-  font-size: var(--font-size-sm);
-}
-
-.name-cell {
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-}
-
-.date-cell {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-/* Actions */
-.actions-group {
-  display: flex;
-  gap: var(--space-2);
-  justify-content: center;
-}
-
-.action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: var(--radius-base);
-  cursor: pointer;
-  transition: all var(--transition-base);
-}
-
-.action-btn-edit {
-  background: var(--color-primary-50);
-  color: var(--color-primary-500);
-}
-
-.action-btn-edit:hover {
-  background: var(--color-primary-100);
-}
-
-.action-btn-delete {
-  background: var(--color-error-50);
-  color: var(--color-error-500);
-}
-
-.action-btn-delete:hover {
-  background: var(--color-error-100);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .table-header, .filters-bar {
+    flex-direction: column;
+    gap: 12px;
+  }
   .table-header {
-    flex-direction: column;
-    gap: var(--space-4);
+    align-items: flex-start;
   }
-
-  .filters-bar {
-    flex-direction: column;
-  }
-
-  .search-container {
-    min-width: auto;
-  }
-
-  .table-wrapper {
-    overflow-x: auto;
-  }
-
-  .modern-table {
-    min-width: 800px;
-  }
-}
-
-/* Status styles */
-.status-expired {
-  color: var(--color-error-600);
-  background: var(--color-error-50);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-sm);
-}
-
-.status-empty {
-  color: var(--color-warning-600);
-  background: var(--color-warning-50);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-sm);
-}
-
-.status-warning {
-  color: var(--color-warning-600);
-  background: var(--color-warning-50);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-sm);
-}
-
-.status-available {
-  color: var(--color-success-600);
-  background: var(--color-success-50);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-sm);
-}
-
-.text-danger {
-  color: var(--color-error-600);
 }
 </style>
