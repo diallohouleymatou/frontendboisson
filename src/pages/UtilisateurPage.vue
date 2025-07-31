@@ -52,22 +52,22 @@
         </thead>
         <tbody>
           <tr v-for="utilisateur in filteredUtilisateurs" :key="utilisateur.id">
-            <td>{{ utilisateur.nom }}</td>
+            <td>{{ utilisateur.lastName }}</td>
             <td>{{ utilisateur.email }}</td>
             <td>{{ utilisateur.role }}</td>
             <td>
-              <span :style="{ color: utilisateur.actif ? '#34a853' : '#ea4335', fontWeight: 'bold' }">
-                {{ utilisateur.actif ? 'Actif' : 'Inactif' }}
+              <span :style="{ color: utilisateur.isActive ? '#34a853' : '#ea4335', fontWeight: 'bold' }">
+                {{ utilisateur.isActive ? 'Actif' : 'Inactif' }}
               </span>
             </td>
             <td>
               <button
                 class="btn"
-                :class="utilisateur.actif ? 'btn-danger' : 'btn-primary'"
-                @click="toggleStatus(utilisateur)"
+                :class="utilisateur.isActive ? 'btn-danger' : 'btn-primary'"
+                @click="handleToggleActive(utilisateur)"
                 style="margin-right: 8px; transition: background 0.2s, color 0.2s;"
               >
-                {{ utilisateur.actif ? 'Désactiver' : 'Activer' }}
+                {{ utilisateur.isActive ? 'Désactiver' : 'Activer' }}
               </button>
               <button class="btn btn-primary" @click="editUtilisateur(utilisateur)">Modifier</button>
             </td>
@@ -97,7 +97,6 @@ import { UtilisateurService } from '../features/utilisateurs/services/utilisateu
 import type { Utilisateur } from '../features/utilisateurs/models/utilisateur'
 import type { Role } from '../features/utilisateurs/models/role'
 
-// Mock data for development
 const utilisateurs = ref<Utilisateur[]>([
 ])
 
@@ -268,23 +267,6 @@ const handlePasswordChange = async (data: any) => {
     closePasswordModal()
   } catch (error) {
     console.error('Erreur lors du changement de mot de passe:', error)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const handleDeleteUser = async (utilisateur: Utilisateur) => {
-  if (!confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${utilisateur.email} ?`)) {
-    return
-  }
-
-  try {
-    isLoading.value = true
-    await UtilisateurService.deleteUtilisateur(utilisateur.id)
-    // Reload users
-    utilisateurs.value = await UtilisateurService.getAllUtilisateurs()
-  } catch (error) {
-    console.error('Erreur lors de la suppression de l\'utilisateur:', error)
   } finally {
     isLoading.value = false
   }
