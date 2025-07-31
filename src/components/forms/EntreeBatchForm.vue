@@ -6,26 +6,7 @@
     </div>
 
     <!-- Section Utilisateur -->
-    <div class="form-section">
-      <h4 class="section-title">Utilisateur Responsable</h4>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="utilisateur">Utilisateur*</label>
-          <select
-            id="utilisateur"
-            v-model="selectedUtilisateur"
-            required
-            :class="{ 'error': errors.utilisateur }"
-          >
-            <option value="">Sélectionnez un utilisateur</option>
-            <option v-for="utilisateur in utilisateurs" :key="utilisateur.id" :value="utilisateur">
-              {{ utilisateur.nom }} ({{ utilisateur.email }})
-            </option>
-          </select>
-          <span v-if="errors.utilisateur" class="error-message">{{ errors.utilisateur }}</span>
-        </div>
-      </div>
-    </div>
+    <!-- Utilisateur connecté automatiquement, pas de sélection manuelle -->
 
     <!-- Liste des lots -->
     <div class="form-section">
@@ -36,14 +17,12 @@
           Ajouter un lot
         </button>
       </div>
-
       <div v-if="lots.length === 0" class="empty-lots">
         <div class="empty-icon">
           <ArchiveBoxIcon class="w-8 h-8" />
         </div>
         <p>Aucun lot ajouté. Cliquez sur "Ajouter un lot" pour commencer.</p>
       </div>
-
       <div v-else class="lots-list">
         <div v-for="(lot, index) in lots" :key="index" class="lot-card">
           <div class="lot-header">
@@ -52,7 +31,6 @@
               <TrashIcon class="w-4 h-4" />
             </button>
           </div>
-
           <div class="lot-content">
             <div class="form-row">
               <div class="form-group">
@@ -97,19 +75,6 @@
                 <span v-if="lotErrors[index]?.quantiteInitiale" class="error-message">{{ lotErrors[index].quantiteInitiale }}</span>
               </div>
               <div class="form-group">
-                <label>Date d'entrée*</label>
-                <input
-                  v-model="lot.dateEntree"
-                  type="datetime-local"
-                  required
-                  :class="{ 'error': lotErrors[index]?.dateEntree }"
-                />
-                <span v-if="lotErrors[index]?.dateEntree" class="error-message">{{ lotErrors[index].dateEntree }}</span>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
                 <label>Date de péremption*</label>
                 <input
                   v-model="lot.datePeremption"
@@ -119,13 +84,22 @@
                 />
                 <span v-if="lotErrors[index]?.datePeremption" class="error-message">{{ lotErrors[index].datePeremption }}</span>
               </div>
+            </div>
+
+            <div class="form-row">
               <div class="form-group">
-                <label>Fournisseur</label>
-                <input
+                <label>Fournisseur*</label>
+                <select
                   v-model="lot.fournisseur"
-                  type="text"
-                  placeholder="Nom du fournisseur"
-                />
+                  required
+                  :class="{ 'error': lotErrors[index]?.fournisseur }"
+                >
+                  <option value="">Sélectionnez un fournisseur</option>
+                  <option v-for="fournisseur in fournisseurs" :key="fournisseur.id" :value="fournisseur.id">
+                    {{ fournisseur.nom }}
+                  </option>
+                </select>
+                <span v-if="lotErrors[index]?.fournisseur" class="error-message">{{ lotErrors[index].fournisseur }}</span>
               </div>
             </div>
 
@@ -199,6 +173,7 @@ import type { Boisson } from '../../features/boissons/models/boisson'
 import type { Utilisateur } from '../../features/utilisateurs/models/utilisateur'
 import { BoissonService } from '../../features/boissons/services/boissonService'
 import { UtilisateurService } from '../../features/utilisateurs/services/utilisateurService'
+import { FournisseurService } from '../../features/fournisseur/services/fournisseurService'
 
 const props = defineProps<{
   isLoading?: boolean
@@ -217,18 +192,22 @@ const lotErrors = ref<Record<number, Record<string, string>>>({})
 
 // Données de référence
 const boissons = ref<Boisson[]>([])
-const utilisateurs = ref<Utilisateur[]>([])
+const fournisseurs = ref<any[]>([])
 
 // Chargement des données
 onMounted(async () => {
   try {
-    const [boissonsList, utilisateursList] = await Promise.all([
+    const [boissonsList, fournisseursList] = await Promise.all([
       BoissonService.getAllBoissons(),
-      UtilisateurService.getAllUtilisateurs(),
+      FournisseurService.getAllFournisseurs(),
     ])
     boissons.value = boissonsList
-    utilisateurs.value = utilisateursList
-
+    fournisseurs.value = fournisseursList.filter(f => f.estActif)
+    // Utilisateur connecté depuis localStorage
+    const userStr = localStorage.getItem('user')
+    if (userStr) {
+      selectedUtilisateur.value = JSON.parse(userStr)
+    }
     // Ajouter un premier lot par défaut
     addLot()
   } catch (error) {
@@ -259,8 +238,8 @@ const isFormValid = computed(() => {
            lot.numeroLot &&
            lot.quantiteInitiale &&
            lot.quantiteInitiale > 0 &&
-           lot.dateEntree &&
-           lot.datePeremption
+           lot.datePeremption &&
+           lot.fournisseur
          ) &&
          Object.keys(errors.value).length === 0 &&
          Object.keys(lotErrors.value).length === 0
@@ -268,12 +247,10 @@ const isFormValid = computed(() => {
 
 // Gestion des lots
 const addLot = () => {
-  const now = new Date()
   lots.value.push({
     numeroLot: '',
     quantiteInitiale: 0,
     quantiteActuelle: 0,
-    dateEntree: now.toISOString().slice(0, 16),
     datePeremption: '',
     vendable: true,
     fournisseur: '',
@@ -313,7 +290,7 @@ const validateForm = () => {
   lotErrors.value = {}
 
   if (!selectedUtilisateur.value) {
-    errors.value.utilisateur = 'Veuillez sélectionner un utilisateur'
+    errors.value.utilisateur = 'Utilisateur non connecté'
   }
 
   if (lots.value.length === 0) {
@@ -321,49 +298,36 @@ const validateForm = () => {
     return false
   }
 
-  // Validation de chaque lot
   lots.value.forEach((lot, index) => {
     const lotError: Record<string, string> = {}
-
     if (!lot.boisson) {
       lotError.boisson = 'Veuillez sélectionner une boisson'
     }
-
     if (!lot.numeroLot) {
       lotError.numeroLot = 'Le numéro de lot est obligatoire'
     }
-
     if (!lot.quantiteInitiale || lot.quantiteInitiale <= 0) {
       lotError.quantiteInitiale = 'La quantité doit être supérieure à 0'
     }
-
-    if (!lot.dateEntree) {
-      lotError.dateEntree = 'La date d\'entrée est obligatoire'
-    }
-
     if (!lot.datePeremption) {
       lotError.datePeremption = 'La date de péremption est obligatoire'
     }
-
-    // Validation de cohérence des dates
-    if (lot.dateEntree && lot.datePeremption) {
-      const dateEntree = new Date(lot.dateEntree)
+    if (!lot.fournisseur) {
+      lotError.fournisseur = 'Veuillez sélectionner un fournisseur'
+    }
+    if (lot.datePeremption) {
       const datePeremption = new Date(lot.datePeremption)
-
-      if (datePeremption <= dateEntree) {
-        lotError.datePeremption = 'La date de péremption doit être postérieure à la date d\'entrée'
+      if (datePeremption <= new Date()) {
+        lotError.datePeremption = 'La date de péremption doit être postérieure à la date actuelle'
       }
     }
-
     if (Object.keys(lotError).length > 0) {
       lotErrors.value[index] = lotError
     }
   })
-
   // Vérifier les numéros de lots dupliqués
   const numeroLots = lots.value.map(lot => lot.numeroLot).filter(Boolean)
   const duplicates = numeroLots.filter((item, index) => numeroLots.indexOf(item) !== index)
-
   if (duplicates.length > 0) {
     lots.value.forEach((lot, index) => {
       if (lot.numeroLot && duplicates.includes(lot.numeroLot)) {
@@ -372,7 +336,6 @@ const validateForm = () => {
       }
     })
   }
-
   return Object.keys(errors.value).length === 0 && Object.keys(lotErrors.value).length === 0
 }
 
@@ -380,19 +343,31 @@ const handleSubmit = () => {
   if (!validateForm()) {
     return
   }
-
-  // Préparer les données pour l'envoi
-  const lotRequests = lots.value.map(lot => ({
-    lot: {
-      ...lot,
-      quantiteActuelle: lot.quantiteInitiale, // Nouvelle entrée
-    },
-    utilisateur: selectedUtilisateur.value!,
+  // Mapping strict pour chaque lot (LotDto) avec objets complets pour boisson et fournisseur
+  const lotsToSend = lots.value.map(lot => ({
+    numeroLot: lot.numeroLot,
+    quantiteInitiale: lot.quantiteInitiale,
+    quantiteActuelle: lot.quantiteInitiale,
+    datePeremption: lot.datePeremption,
+    vendable: lot.vendable,
+    boisson: lot.boisson, // objet complet
+    fournisseur: fournisseurs.find(f => f.id === lot.fournisseur), // objet complet
   }))
-
+  // Mapping strict pour l'utilisateur (UtilisateurDto)
+  const user = selectedUtilisateur.value
+    ? {
+        id: selectedUtilisateur.value.id,
+        firstName: selectedUtilisateur.value.firstName,
+        lastName: selectedUtilisateur.value.lastName,
+        email: selectedUtilisateur.value.email,
+        role: selectedUtilisateur.value.role,
+        isActive: selectedUtilisateur.value.isActive,
+        isFirstLogin: selectedUtilisateur.value.isFirstLogin,
+      }
+    : undefined
   emit('submit', {
-    lots: lotRequests,
-    utilisateur: selectedUtilisateur.value!,
+    lots: lotsToSend,
+    utilisateur: user,
   })
 }
 </script>

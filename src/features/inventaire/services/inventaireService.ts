@@ -36,4 +36,8 @@ export const inventaireService = {
     const response = await api.post('/inventaire/entree', request);
     return response.data;
   },
+  async createLotBatch(payload: { lots: any[]; utilisateur: any }) {
+    const response = await api.post('/inventaire/lotsgroupes', payload);
+    return response.data;
+  },
 };

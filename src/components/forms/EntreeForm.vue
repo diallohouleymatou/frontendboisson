@@ -203,17 +203,32 @@ const handleSubmit = () => {
   if (!validateForm()) {
     return
   }
-
   formData.value.lot.quantiteActuelle = formData.value.lot.quantiteInitiale
-
+  // Mapping strict pour le lot (LotDto)
   const lotToSend = {
-    ...formData.value.lot,
-    fournisseur: { id: formData.value.lot.fournisseur }
+    numeroLot: formData.value.lot.numeroLot,
+    quantiteInitiale: formData.value.lot.quantiteInitiale,
+    quantiteActuelle: formData.value.lot.quantiteInitiale,
+    datePeremption: formData.value.lot.datePeremption,
+    vendable: formData.value.lot.vendable,
+    boisson: { id: formData.value.lot.boisson.id },
+    fournisseur: { id: formData.value.lot.fournisseur },
   }
-
+  // Mapping strict pour l'utilisateur (UtilisateurDto)
+  const user = formData.value.utilisateur
+    ? {
+        id: formData.value.utilisateur.id,
+        firstName: formData.value.utilisateur.firstName,
+        lastName: formData.value.utilisateur.lastName,
+        email: formData.value.utilisateur.email,
+        role: formData.value.utilisateur.role,
+        isActive: formData.value.utilisateur.isActive,
+        isFirstLogin: formData.value.utilisateur.isFirstLogin,
+      }
+    : undefined
   emit('submit', {
     lot: lotToSend,
-    utilisateur: formData.value.utilisateur!,
+    utilisateur: user,
   })
 }
 </script>
